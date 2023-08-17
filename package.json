@@ -1,0 +1,109 @@
+{
+  "name": "blog-node",
+  "version": "1.0.0",
+  "private": true,
+  "author": "daixu",
+  "license": "MIT",
+  "scripts": {
+    "start": "nodemon",
+    "pm2": "pm2 startOrRestart pm2.config.js --env production",
+    "deploy-setup": "pm2 deploy pm2.config.js production setup",
+    "deploy": "pm2 deploy pm2.config.js production --force",
+    "prettier": "prettier --write .",
+    "lint": "lint-staged",
+    "husky-install": "husky install && npx husky add .husky/commit-msg 'npm run lint && npx --no-install commitlint --edit $1'",
+    "commit": "cz"
+  },
+  "lint-staged": {
+    "*.{ts,js,json,css,scss,md,vue}": "prettier --write .",
+    "*.{ts,js,vue}": [
+      "eslint . --ext .vue,.js,.ts,.jsx,.tsx --fix"
+    ]
+  },
+  "config": {
+    "commitizen": {
+      "path": "node_modules/cz-customizable"
+    }
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.d.ts"
+  ],
+  "extension": [
+    ".ts"
+  ],
+  "_moduleAliases": {
+    "@": "src"
+  },
+  "dependencies": {
+    "ali-oss": "^6.17.1",
+    "archiver": "^5.3.1",
+    "axios": "^1.3.2",
+    "dayjs": "^1.11.7",
+    "dotenv": "^16.3.1",
+    "figlet": "^1.6.0",
+    "file-type": "^16.5.3",
+    "fs-extra": "^11.1.1",
+    "geoip-lite": "^1.4.7",
+    "got": "^11.8.6",
+    "ioredis": "^5.3.1",
+    "jsonwebtoken": "^9.0.0",
+    "koa": "^2.14.1",
+    "koa-body": "^6.0.1",
+    "koa-combine-routers": "^4.0.2",
+    "koa-compose": "^4.1.0",
+    "koa-helmet": "^6.1.0",
+    "koa-router": "^12.0.0",
+    "koa-static": "^5.0.0",
+    "koa2-cors": "^2.0.6",
+    "koa2-ratelimit": "^1.1.3",
+    "koa2-swagger-ui": "^5.7.0",
+    "log4js": "^6.7.1",
+    "md5": "^2.3.0",
+    "module-alias": "^2.2.2",
+    "mysql2": "^2.3.3",
+    "node-schedule": "^2.1.1",
+    "nodemailer": "^6.9.1",
+    "pm2": "^5.3.0",
+    "request-ip": "^3.3.0",
+    "sequelize": "^6.29.3",
+    "swagger-jsdoc": "^6.2.8",
+    "systeminformation": "^5.17.12"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^17.6.3",
+    "@commitlint/config-conventional": "^17.6.3",
+    "@types/ali-oss": "^6.16.8",
+    "@types/archiver": "^5.3.2",
+    "@types/figlet": "^1.5.5",
+    "@types/fs-extra": "^11.0.1",
+    "@types/geoip-lite": "^1.4.1",
+    "@types/jsonwebtoken": "^9.0.1",
+    "@types/koa": "^2.13.5",
+    "@types/koa-router": "^7.4.4",
+    "@types/koa-static": "^4.0.2",
+    "@types/koa2-cors": "^2.0.2",
+    "@types/koa2-ratelimit": "^0.9.3",
+    "@types/md5": "^2.3.2",
+    "@types/node": "^18.11.18",
+    "@types/node-schedule": "^2.1.0",
+    "@types/nodemailer": "^6.4.7",
+    "@types/request-ip": "0.0.37",
+    "@types/swagger-jsdoc": "^6.0.1",
+    "@types/ws": "^8.5.4",
+    "@typescript-eslint/eslint-plugin": "^5.48.0",
+    "@typescript-eslint/parser": "^5.48.0",
+    "commitizen": "^4.3.0",
+    "cz-customizable": "^7.0.0",
+    "eslint": "^8.31.0",
+    "eslint-config-prettier": "^8.6.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "husky": "^8.0.3",
+    "lint-staged": "^13.2.2",
+    "nodemon": "^3.0.1",
+    "prettier": "^2.8.2",
+    "ts-node": "^10.9.1",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^4.9.4"
+  }
+}
