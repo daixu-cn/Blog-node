@@ -133,6 +133,8 @@ export function CommentError(code: number): string {
       return "评论删除失败";
     case 14009:
       return "回复列表查询失败";
+    case 14010:
+      return "该文章已禁止评论";
     default:
       return "评论/回复模块异常";
   }

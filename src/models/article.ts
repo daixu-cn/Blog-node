@@ -84,6 +84,28 @@ const Article = sequelize.define(
       comment: "文章阅读量",
       defaultValue: 0
     },
+    disableComment: {
+      type: DataTypes.BOOLEAN,
+      comment: "禁止评论(0:允许评论、1:禁止评论)",
+      allowNull: false,
+      defaultValue: false,
+      validate: {
+        isBoolean: {
+          message: "disableComment 字段类型错误"
+        }
+      }
+    },
+    isPrivate: {
+      type: DataTypes.BOOLEAN,
+      comment: "私有文章(0:公开、1:私有)",
+      allowNull: false,
+      defaultValue: false,
+      validate: {
+        isBoolean: {
+          message: "isPrivate 字段类型错误"
+        }
+      }
+    },
     userId: {
       type: DataTypes.BIGINT.UNSIGNED,
       allowNull: false,

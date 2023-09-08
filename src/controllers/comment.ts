@@ -176,14 +176,19 @@ export default {
   },
   async create(ctx: Context) {
     try {
-      const { content, articleId, userId } = ctx.params;
+      const { content, articleId, userId, role } = ctx.params;
 
       if (articleId && articleId !== "-1") {
-        const article = await Article.findOne({
-          where: { articleId }
-        });
+        const article = (
+          await Article.findOne({
+            where: { articleId }
+          })
+        )?.toJSON();
+
         if (!article) {
           throw responseError({ code: 14003 });
+        } else if (article.disableComment && role !== 0) {
+          throw responseError({ code: 14010 });
         }
       }
 

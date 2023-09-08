@@ -44,6 +44,14 @@ router.prefix("/article");
  *                 type: string
  *                 example: https://daixu.cn/images/xxx.mp4
  *                 description: 视频
+ *               disableComment:
+ *                 type: integer
+ *                 default: 0
+ *                 description: 禁止评论(0:允许评论、1:禁止评论)
+ *               isPrivate:
+ *                 type: integer
+ *                 default: 0
+ *                 description: 私有文章(0:公开、1:私有)
  *               description:
  *                 type: string
  *                 description: 文章描述
@@ -180,6 +188,14 @@ router.post("/list", articleController.list);
  *               description:
  *                 type: string
  *                 description: 文章描述
+ *               disableComment:
+ *                 type: integer
+ *                 default: 0
+ *                 description: 禁止评论(0:允许评论、1:禁止评论)
+ *               isPrivate:
+ *                 type: integer
+ *                 default: 0
+ *                 description: 私有文章(0:公开、1:私有)
  *             required:
  *               - articleId
  *     responses:

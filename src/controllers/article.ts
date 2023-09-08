@@ -32,6 +32,8 @@ const ARTICLE_ATTRIBUTES: FindAttributeOptions = [
   "poster",
   "video",
   "views",
+  "disableComment",
+  "isPrivate",
   "createdAt",
   "updatedAt"
 ];
@@ -108,6 +110,14 @@ export default {
    *           type: integer
    *           example: 1
    *           description: 文章阅读量
+   *         disableComment:
+   *           type: boolean
+   *           example: true
+   *           description: 禁止评论(false:允许评论、true:禁止评论)
+   *         isPrivate:
+   *           type: boolean
+   *           example: true
+   *           description: 私有文章(false:公开、true:私有)
    *         user:
    *           type: object
    *           description: 发布用户
@@ -143,7 +153,17 @@ export default {
    */
   async create(ctx: Context) {
     try {
-      const { title, description, category, poster, video, content, userId } = ctx.params;
+      const {
+        title,
+        description,
+        category,
+        poster,
+        video,
+        content,
+        disableComment,
+        isPrivate,
+        userId
+      } = ctx.params;
       const { dataValues } = await Article.create({
         title,
         description,
@@ -151,6 +171,8 @@ export default {
         poster: poster ? poster.replace(IMG_PREFIX, "") : null,
         video: video ? video.replace(IMG_PREFIX, "") : null,
         content,
+        disableComment,
+        isPrivate,
         userId
       });
 
@@ -188,7 +210,8 @@ export default {
         endTime,
         page = 1,
         pageSize = 10,
-        orderBy = "createdAt"
+        orderBy = "createdAt",
+        role
       } = ctx.params;
 
       const { count, rows } = await Article.findAndCountAll({
@@ -215,9 +238,11 @@ export default {
 
       const list: any[] = [];
       for (const item of rows) {
+        const article = item.toJSON();
         list.push({
-          ...item.toJSON(),
-          comment_reply_total: await getCommentReplyTotal(item.toJSON().articleId)
+          ...article,
+          comment_reply_total: await getCommentReplyTotal(article.articleId),
+          content: article.isPrivate ? (role === 0 ? article.content : "") : article.content
         });
       }
 
@@ -228,8 +253,18 @@ export default {
   },
   async update(ctx: Context) {
     try {
-      const { articleId, title, content, category, poster, video, description, userId } =
-        ctx.params;
+      const {
+        articleId,
+        title,
+        content,
+        category,
+        poster,
+        video,
+        description,
+        disableComment,
+        isPrivate,
+        userId
+      } = ctx.params;
       const [rows] = await Article.update(
         {
           title,
@@ -237,7 +272,9 @@ export default {
           category,
           poster: poster ? poster.replace(IMG_PREFIX, "") : null,
           video: video ? video.replace(IMG_PREFIX, "") : null,
-          description
+          description,
+          disableComment,
+          isPrivate
         },
         { where: { articleId, userId } }
       );
@@ -257,13 +294,15 @@ export default {
   },
   async info(ctx: Context) {
     try {
-      const { articleId, disableViewsIncrement } = ctx.params;
+      const { articleId, disableViewsIncrement, role } = ctx.params;
 
-      const article = await Article.findOne({
-        where: { articleId },
-        attributes: ARTICLE_ATTRIBUTES,
-        include: INCLUDE
-      });
+      const article = (
+        await Article.findOne({
+          where: { articleId },
+          attributes: ARTICLE_ATTRIBUTES,
+          include: INCLUDE
+        })
+      )?.toJSON();
 
       // 判断该IP当天是否已经查看过文章
       if (
@@ -277,8 +316,9 @@ export default {
       if (article) {
         ctx.body = response({
           data: {
-            ...article.toJSON(),
-            comment_reply_total: await getCommentReplyTotal(articleId)
+            ...article,
+            comment_reply_total: await getCommentReplyTotal(articleId),
+            content: article.isPrivate ? (role === 0 ? article.content : "") : article.content
           },
           message: "查询成功"
         });
