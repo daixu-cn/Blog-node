@@ -11,7 +11,7 @@
  Target Server Version : 80033 (8.0.33)
  File Encoding         : 65001
 
- Date: 17/08/2023 16:45:32
+ Date: 08/09/2023 15:13:45
 */
 
 SET NAMES utf8mb4;
@@ -30,6 +30,8 @@ CREATE TABLE `article` (
   `video` char(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '视频',
   `content` longtext COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '文章正文(Markdown)',
   `views` int NOT NULL DEFAULT '0' COMMENT '文章阅读量',
+  `disable_comment` tinyint(1) NOT NULL DEFAULT '0' COMMENT '禁止评论(0:允许评论、1:禁止评论)',
+  `is_private` tinyint(1) NOT NULL DEFAULT '0' COMMENT '私有文章(0:公开、1:私有)',
   `user_id` bigint unsigned NOT NULL COMMENT '用户ID',
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
