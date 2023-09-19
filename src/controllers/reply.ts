@@ -218,7 +218,7 @@ export default {
             "DAIXU BLOG",
             `收到一条回复，<a href="https://daixu.cn/${
               articleId ? "article/" + articleId : "community"
-            }" target="_blank" style="color:#9fa3f1;font-weight:initial;cursor:pointer;text-decoration:none">去查看 </a>。<div>${html}</div>`
+            }" target="_blank" style="color:#9fa3f1;font-weight:initial;cursor:pointer;text-decoration:none">点击查看 </a>。<div>${html}</div>`
           );
         }
       } else {
@@ -234,7 +234,7 @@ export default {
             "DAIXU BLOG",
             `收到一条回复，<a href="https://daixu.cn/${
               comment.articleId ? "article/" + comment.articleId : "community"
-            }" target="_blank" style="color:#9fa3f1;font-weight:initial;cursor:pointer;text-decoration:none">去查看 </a>。`
+            }" target="_blank" style="color:#9fa3f1;font-weight:initial;cursor:pointer;text-decoration:none">点击查看 </a>。<div>${html}</div>`
           );
         }
       }
