@@ -31,6 +31,9 @@ router.prefix("/reply");
  *               content:
  *                 type: string
  *                 description: 回复内容(Markdown)
+ *               html:
+ *                 type: string
+ *                 description: 回复内容(HTML)
  *               commentId:
  *                 type: string
  *                 example: "173598718455681024"

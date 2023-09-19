@@ -176,7 +176,7 @@ export default {
   },
   async create(ctx: Context) {
     try {
-      const { content, articleId, userId, role } = ctx.params;
+      const { content, html, articleId, userId, role } = ctx.params;
 
       if (articleId && articleId !== "-1") {
         const article = (
@@ -208,7 +208,7 @@ export default {
         "DAIXU BLOG",
         `收到一条评论，<a href="https://daixu.cn/${
           articleId === "-1" ? "community" : "article/" + articleId
-        }" target="_blank" style="color:#9fa3f1;font-weight:initial;cursor:pointer;text-decoration:none">去查看 </a>。<div>${content}</div>`
+        }" target="_blank" style="color:#9fa3f1;font-weight:initial;cursor:pointer;text-decoration:none">去查看 </a>。<div>${html}</div>`
       );
     } catch (error: any) {
       throw responseError({ code: 14001, message: error.errors?.[0]?.message ?? error?.message });

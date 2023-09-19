@@ -31,6 +31,9 @@ router.prefix("/comment");
  *               content:
  *                 type: string
  *                 description: 评论内容(Markdown)
+ *               html:
+ *                 type: string
+ *                 description: 评论内容(HTML)
  *               articleId:
  *                 type: string
  *                 example: "172669927453589504"

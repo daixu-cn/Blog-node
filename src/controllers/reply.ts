@@ -182,7 +182,7 @@ export default {
    */
   async create(ctx: Context) {
     try {
-      const { content, commentId, parentId, userId } = ctx.params;
+      const { content, html, commentId, parentId, userId } = ctx.params;
 
       if (parentId) {
         if (!(await Reply.findByPk(parentId))) {
@@ -218,7 +218,7 @@ export default {
             "DAIXU BLOG",
             `收到一条回复，<a href="https://daixu.cn/${
               articleId ? "article/" + articleId : "community"
-            }" target="_blank" style="color:#9fa3f1;font-weight:initial;cursor:pointer;text-decoration:none">去查看 </a>。<div>${content}</div>`
+            }" target="_blank" style="color:#9fa3f1;font-weight:initial;cursor:pointer;text-decoration:none">去查看 </a>。<div>${html}</div>`
           );
         }
       } else {
