@@ -77,6 +77,10 @@ export function UploadError(code: number): string {
       return "删除权限不足";
     case 12015:
       return "OSS异常";
+    case 12016:
+      return "文件转换异常";
+    case 12017:
+      return "该文件不是图片格式";
     default:
       return "上传模块异常";
   }
@@ -205,7 +209,7 @@ interface Params {
 export default function errorFormat(params: Params) {
   const code = params?.code ?? -1;
   const data = params?.data ?? null;
-  const message = params?.message ?? "";
+  const message = params?.message?.toString() ?? "";
 
   if (message) {
     return response({ code, message, data });

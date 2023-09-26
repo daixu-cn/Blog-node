@@ -1,9 +1,7 @@
 import { Context } from "koa";
-import response from "@/config/response";
 import responseError from "@/config/response/error";
 import { generateId } from "@/utils/api";
 import fs from "fs-extra";
-import koaBody from "koa-body";
 import { File } from "formidable";
 import path from "path";
 import { IMG_PREFIX } from "@/config/env";
@@ -11,6 +9,10 @@ import FileType from "file-type";
 import crypto from "crypto";
 import { moduleFormat } from "@/utils/file";
 import oss from "@/utils/oss";
+import sharp from "sharp";
+
+// 上传文件路径前缀
+export const filePathPrefix = "../../../public/upload";
 
 /**
  * @description 分片文件校验
@@ -18,7 +20,7 @@ import oss from "@/utils/oss";
  * @param {File} file 需要校验的文件
  * @return {}
  */
-function chunkFileVerification(ctx: Context, file: File) {
+export function chunkFileVerification(ctx: Context, file: File) {
   const { name, chunk, chunks, hash } = ctx.request.body;
   if (!name || !chunks || !hash) {
     throw responseError({ code: 12008 });
@@ -35,13 +37,13 @@ function chunkFileVerification(ctx: Context, file: File) {
   // 如果分片已存在，直接返回
   if (
     fs.existsSync(
-      path.join(__dirname, `../../public/upload/temp/${decodeURIComponent(name)}/${hash}-${chunk}`)
+      path.join(__dirname, `${filePathPrefix}/temp/${decodeURIComponent(name)}/${hash}-${chunk}`)
     )
   ) {
     throw responseError({
       code: 12009,
       data: fs.readdirSync(
-        path.join(__dirname, `../../public/upload/temp/${decodeURIComponent(name)}`)
+        path.join(__dirname, `${filePathPrefix}/temp/${decodeURIComponent(name)}`)
       ).length
     });
   }
@@ -53,15 +55,15 @@ function chunkFileVerification(ctx: Context, file: File) {
  * @param {File} file 分片文件
  * @return {}
  */
-function chunkMerge(ctx: Context, file: File) {
+export function chunkMerge(ctx: Context, file: File) {
   return new Promise<string>(async (resolve, reject) => {
     const { module, name, chunk, chunks } = ctx.request.body;
     const fileName = decodeURIComponent(name);
     // 获取分片文件目录和文件路径
-    const chunkDir = path.join(__dirname, `../../public/upload/temp/${fileName}`);
+    const chunkDir = path.join(__dirname, `${filePathPrefix}/temp/${fileName}`);
 
     // 合并之后的临时文件地址
-    const filePath = path.join(__dirname, `../../public/upload/${name}`);
+    const filePath = path.join(__dirname, `${filePathPrefix}/${name}`);
 
     try {
       // 判断是否为最后一个分片
@@ -91,7 +93,7 @@ function chunkMerge(ctx: Context, file: File) {
         // 将文件移入该目录
         const destPath = path.join(
           __dirname,
-          `../../public/upload/${mime}${moduleFormat(mime, parseInt(module))}`
+          `${filePathPrefix}/${mime}${moduleFormat(mime, parseInt(module))}`
         );
 
         // 判断文件目录是否存在，如果不存在则创建一个
@@ -123,9 +125,9 @@ function chunkMerge(ctx: Context, file: File) {
  * @description 处理完整文件
  * @param {Context} ctx 上下文对象
  * @param {File} file 文件
- * @return {}
+ * @return {Promise<string>} 文件地址
  */
-async function handleFile(ctx: Context, file: File): Promise<string | string[]> {
+export async function handleUploadFile(ctx: Context, file: File): Promise<string> {
   try {
     const { module, name, chunk, hash } = ctx.request.body;
 
@@ -141,7 +143,7 @@ async function handleFile(ctx: Context, file: File): Promise<string | string[]> 
     chunk && chunkFileVerification(ctx, file);
 
     // 将文件移入该目录
-    const destPath = path.join(__dirname, `../../public/upload/${filePath}`);
+    const destPath = path.join(__dirname, `${filePathPrefix}/${filePath}`);
 
     // 判断文件目录是否存在，如果不存在则创建一个
     fs.ensureDirSync(destPath);
@@ -151,7 +153,7 @@ async function handleFile(ctx: Context, file: File): Promise<string | string[]> 
     if (chunk) {
       // 校验是否为最后一个分片
       const filePath = await chunkMerge(ctx, file);
-      await oss.put(`upload/${filePath}`, path.join(__dirname, `../../public/upload/${filePath}`));
+      await oss.put(`upload/${filePath}`, path.join(__dirname, `${filePathPrefix}/${filePath}`));
 
       return `${IMG_PREFIX}${filePath}`;
     }
@@ -164,94 +166,36 @@ async function handleFile(ctx: Context, file: File): Promise<string | string[]> 
   }
 }
 
-export default {
-  koaBody() {
-    const uploadDir = path.join(__dirname, `../../public/upload`);
-    return koaBody({
-      multipart: true,
-      formidable: {
-        maxFileSize: 1024 * 1024 * 2, // 单个文件最大为2M
-        uploadDir,
-        keepExtensions: true,
-        // 重写文件名
-        filename(name, ext) {
-          return `${generateId()}${ext}`;
-        },
-        onFileBegin(name, file) {
-          // 判断一下上传的路径是否存在，避免报错
-          fs.ensureDirSync(uploadDir);
-        }
-      },
-      onError(error) {
-        throw responseError({ code: 12003, message: error?.message });
-      }
-    });
-  },
-  async upload(ctx: Context) {
-    try {
-      const { role } = ctx.params;
-
-      const files = ctx.request.files;
-      // 如果文件不存在
-      if (!files?.file) {
-        throw responseError({ code: 12002 });
-      }
-
-      // 判断是否为多个文件
-      if (Array.isArray(files.file)) {
-        ctx.body = response({
-          data: files.file.map(async item => {
-            const res = await handleFile(ctx, item);
-            return res;
-          })
-        });
-      } else {
-        ctx.body = response({ data: await handleFile(ctx, files.file) });
-      }
-
-      // 是否存在需要替换掉之前的文件
-      if (ctx.request.body?.replaceFiles && role === 0) {
-        const replaceFiles = ctx.request.body.replaceFiles.split(";");
-        for (const item of replaceFiles) {
-          const filePath = item.replace(IMG_PREFIX, "");
-          const fullPath = path.join(__dirname, `../../public/upload/${filePath}`);
-
-          if (fs.existsSync(fullPath)) {
-            oss.destroy(`upload/${filePath}`);
-            fs.remove(fullPath);
-          }
-        }
-      }
-    } catch (error: any) {
-      throw responseError({
-        code: error?.code ?? 12001,
-        data: error?.data,
-        message: error?.message
-      });
+/**
+ * @description 文件转base64格式
+ * @param {Context} ctx 上下文对象
+ * @param {File} file 文件
+ * @return {}
+ */
+export async function fileToBase64(file: File): Promise<string> {
+  try {
+    // 校验文件是否为图片
+    const fileTypeResult = await FileType.fromFile(file.filepath);
+    if (fileTypeResult?.mime.split("/")[0] !== "image") {
+      throw responseError({ code: 12017 });
     }
-  },
-  async destroy(ctx: Context) {
-    try {
-      const { filePath } = ctx.params;
-      const fullPath = path.join(__dirname, `../../public/${filePath}`);
 
-      if (filePath.startsWith("upload/")) {
-        if (fs.existsSync(fullPath)) {
-          await oss.destroy(filePath);
-          fs.remove(fullPath);
-          ctx.body = response({ message: "操作成功" });
-        } else {
-          throw responseError({ code: 12013 });
-        }
-      } else {
-        throw responseError({ code: 12014 });
-      }
-    } catch (error: any) {
-      throw responseError({
-        code: error?.code ?? 12012,
-        data: error?.data,
-        message: error?.message
-      });
+    const fileBuffer = await sharp(await fs.readFile(file.filepath), { animated: true })
+      .webp()
+      .toBuffer();
+
+    // 使用webp格式 优化图片体积
+    return `data:image/webp;base64,${fileBuffer.toString("base64")}`;
+    // return `data:${fileTypeResult.mime};base64,${fileBuffer.toString("base64")}`;
+  } catch (error: any) {
+    throw responseError({
+      code: error?.code ?? 12007,
+      data: error?.data,
+      message: error?.message
+    });
+  } finally {
+    if (fs.existsSync(file.filepath)) {
+      fs.remove(file.filepath);
     }
   }
-};
+}
