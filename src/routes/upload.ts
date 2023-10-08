@@ -116,6 +116,7 @@ router.delete("/file", auth(0), uploadController.destroy);
  *       - 文件服务
  *     summary: 图片转base64格式
  *     description: 将上传的图片转换为base64格式
+ *     security: []
  *     requestBody:
  *       description:
  *       required: true

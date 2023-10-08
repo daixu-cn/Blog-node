@@ -1,4 +1,4 @@
-import { Context } from "koa";
+import { Context, Middleware } from "koa";
 import response from "@/config/response";
 import responseError from "@/config/response/error";
 import { generateId } from "@/utils/api";
@@ -10,12 +10,17 @@ import oss from "@/utils/oss";
 import { filePathPrefix, handleUploadFile, fileToBase64 } from "@/controllers/upload/file-process";
 
 export default {
-  koaBody() {
+  /**
+   * @description 上传文件
+   * @param {number} maxFileSize 默认单个文件最大为2M
+   * @returns {Middleware} koaBody
+   */
+  koaBody(maxFileSize: number = 1024 * 1024 * 2): Middleware {
     const uploadDir = path.join(__dirname, filePathPrefix);
     return koaBody({
       multipart: true,
       formidable: {
-        maxFileSize: 1024 * 1024 * 2, // 单个文件最大为2M
+        maxFileSize,
         uploadDir,
         keepExtensions: true,
         // 重写文件名
