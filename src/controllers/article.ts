@@ -183,18 +183,20 @@ export default {
 
       ctx.body = response({ data: article, message: "创建成功" });
 
-      const userList = await User.findAll({
-        where: {
-          emailService: true
-        }
-      });
-      for (const item of userList) {
-        if (item.dataValues.email && item.dataValues.emailService) {
-          sendMail(
-            item.dataValues.email,
-            "DAIXU BLOG",
-            `博主发布了新文章--<a href="https://daixu.cn/article/${article?.dataValues.articleId}" target="_blank" style="color:#9fa3f1;font-weight:initial;cursor:pointer;text-decoration:none">${title}</a>`
-          );
+      if (!isPrivate) {
+        const userList = await User.findAll({
+          where: {
+            emailService: true
+          }
+        });
+        for (const item of userList) {
+          if (item.dataValues.email && item.dataValues.emailService) {
+            sendMail(
+              item.dataValues.email,
+              "DAIXU BLOG",
+              `博主发布了新文章--<a href="https://daixu.cn/article/${article?.dataValues.articleId}" target="_blank" style="color:#9fa3f1;font-weight:initial;cursor:pointer;text-decoration:none">${title}</a>。<div>${description}</div>`
+            );
+          }
         }
       }
     } catch (error: any) {
