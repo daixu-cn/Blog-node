@@ -4,7 +4,7 @@ import { generateId } from "@/utils/api";
 import fs from "fs-extra";
 import { File } from "formidable";
 import path from "path";
-import { IMG_PREFIX } from "@/config/env";
+import { UPLOAD_PREFIX, IMG_PREFIX } from "@/config/env";
 import FileType from "file-type";
 import crypto from "crypto";
 import { moduleFormat } from "@/utils/file";
@@ -153,12 +153,18 @@ export async function handleUploadFile(ctx: Context, file: File): Promise<string
     if (chunk) {
       // 校验是否为最后一个分片
       const filePath = await chunkMerge(ctx, file);
-      await oss.put(`upload/${filePath}`, path.join(__dirname, `${filePathPrefix}/${filePath}`));
+      await oss.put(
+        `${UPLOAD_PREFIX}${filePath}`,
+        path.join(__dirname, `${filePathPrefix}/${filePath}`)
+      );
 
       return `${IMG_PREFIX}${filePath}`;
     }
 
-    await oss.put(`upload/${filePath}/${file.newFilename}`, `${destPath}/${file.newFilename}`);
+    await oss.put(
+      `${UPLOAD_PREFIX}${filePath}/${file.newFilename}`,
+      `${destPath}/${file.newFilename}`
+    );
     return `${IMG_PREFIX}${filePath}/${file.newFilename}`;
   } catch (error: any) {
     fs.remove(file.filepath);
