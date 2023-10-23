@@ -5,7 +5,7 @@ import { generateId } from "@/utils/api";
 import fs from "fs-extra";
 import koaBody from "koa-body";
 import path from "path";
-import { IMG_PREFIX } from "@/config/env";
+import { UPLOAD_PREFIX, IMG_PREFIX } from "@/config/env";
 import oss from "@/utils/oss";
 import { filePathPrefix, handleUploadFile, fileToBase64 } from "@/controllers/upload/file-process";
 
@@ -68,7 +68,7 @@ export default {
           const fullPath = path.join(__dirname, `${filePathPrefix}/${filePath}`);
 
           if (fs.existsSync(fullPath)) {
-            oss.destroy(`upload/${filePath}`);
+            oss.destroy(`${UPLOAD_PREFIX}${filePath}`);
             fs.remove(fullPath);
           }
         }
@@ -83,19 +83,20 @@ export default {
   },
   async destroy(ctx: Context) {
     try {
-      const { filePath } = ctx.params;
-      const fullPath = path.join(__dirname, `../../public/${filePath}`);
+      const _path: string = ctx.params?.path;
+      const filePath = _path?.replace(IMG_PREFIX, "");
+      const fullPath = path.join(__dirname, `${filePathPrefix}/${filePath}`);
 
-      if (filePath.startsWith("upload/")) {
+      if (_path?.includes(UPLOAD_PREFIX)) {
         if (fs.existsSync(fullPath)) {
-          await oss.destroy(filePath);
+          await oss.destroy(`${UPLOAD_PREFIX}${filePath}`);
           fs.remove(fullPath);
           ctx.body = response({ message: "操作成功" });
         } else {
           throw responseError({ code: 12013 });
         }
       } else {
-        throw responseError({ code: 12014 });
+        throw responseError({ code: 12018 });
       }
     } catch (error: any) {
       throw responseError({

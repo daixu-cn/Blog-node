@@ -36,7 +36,7 @@ router.prefix("/upload");
  *                   format: binary
  *               replaceFiles:
  *                 type: string
- *                 description: 要替换的文件地址，存在多个使用 ; 分割（例如：http://localhost:3000/upload/image/article/202665875986419712.png;http://localhost:3000/upload/image/article/202665875986419965.png）
+ *                 description: 要替换的文件地址，存在多个使用 ; 分割（例如：upload/image/article/202665875986419712.png;http://localhost:3000/upload/image/article/202665875986419965.png）
  *               module:
  *                 type: string
  *                 description: 文件格式必传：文件所属模块（文章：0、用户：1）
@@ -84,11 +84,11 @@ router.put("/file", auth(0), uploadController.koaBody(), uploadController.upload
  *     summary: 删除文件
  *     description: 删除指定文件
  *     parameters:
- *       - name: filePath
+ *       - name: path
  *         in: query
  *         description: '文件路径'
  *         required: true
- *         example: "upload/image/user/202609519367528448.jpg"
+ *         example: "upload/image/user/202609519367528448.png (或者完整地址：http://localhost:3000/upload/image/article/202609519367528448.png)"
  *         schema:
  *           type: string
  *     responses:

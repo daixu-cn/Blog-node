@@ -81,6 +81,8 @@ export function UploadError(code: number): string {
       return "文件转换异常";
     case 12017:
       return "该文件不是图片格式";
+    case 12018:
+      return "禁止删除 Upload 之外的文件";
     default:
       return "上传模块异常";
   }
