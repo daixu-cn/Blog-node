@@ -5,7 +5,7 @@ import { generateId } from "@/utils/api";
 import fs from "fs-extra";
 import koaBody from "koa-body";
 import path from "path";
-import { UPLOAD_PREFIX, IMG_PREFIX } from "@/config/env";
+import { UPLOAD_PREFIX, FILE_PREFIX } from "@/config/env";
 import oss from "@/utils/oss";
 import { filePathPrefix, handleUploadFile, fileToBase64 } from "@/controllers/upload/file-process";
 
@@ -64,7 +64,7 @@ export default {
       if (ctx.request.body?.replaceFiles && role === 0) {
         const replaceFiles = ctx.request.body.replaceFiles.split(";");
         for (const item of replaceFiles) {
-          const filePath = item.replace(IMG_PREFIX, "");
+          const filePath = item.replace(FILE_PREFIX, "");
           const fullPath = path.join(__dirname, `${filePathPrefix}/${filePath}`);
 
           if (fs.existsSync(fullPath)) {
@@ -84,7 +84,7 @@ export default {
   async destroy(ctx: Context) {
     try {
       const _path: string = ctx.params?.path;
-      const filePath = _path?.replace(IMG_PREFIX, "");
+      const filePath = _path?.replace(FILE_PREFIX, "");
       const fullPath = path.join(__dirname, `${filePathPrefix}/${filePath}`);
 
       if (_path?.includes(UPLOAD_PREFIX)) {

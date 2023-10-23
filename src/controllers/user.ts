@@ -9,7 +9,7 @@ import { sendMail } from "@/utils/nodemailer";
 import http from "@/server";
 import { saveFile } from "@/utils/file";
 import User from "@/models/user";
-import { IMG_PREFIX, _JWT, _SECRET } from "@/config/env";
+import { FILE_PREFIX, _JWT, _SECRET } from "@/config/env";
 import fs from "fs-extra";
 import path from "path";
 
@@ -397,7 +397,7 @@ export default {
 
       const [rows] = await User.update(
         {
-          avatar: avatar ? avatar.replace(IMG_PREFIX, "") : undefined,
+          avatar: avatar ? avatar.replace(FILE_PREFIX, "") : undefined,
           email,
           userName,
           qq,

@@ -13,7 +13,7 @@ import { recursiveDeletionComment } from "@/controllers/comment";
 import redis from "@/utils/redis";
 import dayjs from "dayjs";
 import { sendMail } from "@/utils/nodemailer";
-import { IMG_PREFIX } from "@/config/env";
+import { FILE_PREFIX } from "@/config/env";
 import fs from "fs-extra";
 import path from "path";
 
@@ -168,8 +168,8 @@ export default {
         title,
         description,
         category,
-        poster: poster ? poster.replace(IMG_PREFIX, "") : undefined,
-        video: video ? video.replace(IMG_PREFIX, "") : undefined,
+        poster: poster ? poster.replace(FILE_PREFIX, "") : undefined,
+        video: video ? video.replace(FILE_PREFIX, "") : undefined,
         content,
         disableComment,
         isPrivate,
@@ -272,8 +272,8 @@ export default {
           title,
           content,
           category,
-          poster: poster ? poster.replace(IMG_PREFIX, "") : undefined,
-          video: video ? video.replace(IMG_PREFIX, "") : undefined,
+          poster: poster ? poster.replace(FILE_PREFIX, "") : undefined,
+          video: video ? video.replace(FILE_PREFIX, "") : undefined,
           description,
           disableComment,
           isPrivate

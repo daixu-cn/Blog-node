@@ -4,7 +4,7 @@ import { generateId } from "@/utils/api";
 import fs from "fs-extra";
 import { File } from "formidable";
 import path from "path";
-import { UPLOAD_PREFIX, IMG_PREFIX } from "@/config/env";
+import { UPLOAD_PREFIX, FILE_PREFIX } from "@/config/env";
 import FileType from "file-type";
 import crypto from "crypto";
 import { moduleFormat } from "@/utils/file";
@@ -12,7 +12,7 @@ import oss from "@/utils/oss";
 import sharp from "sharp";
 
 // 上传文件路径前缀
-export const filePathPrefix = "../../../public/upload";
+export const filePathPrefix = `../../../public/${UPLOAD_PREFIX}`;
 
 /**
  * @description 分片文件校验
@@ -111,7 +111,7 @@ export function chunkMerge(ctx: Context, file: File) {
       }
       // 返回分片文件路径
       reject(
-        responseError({ code: 12011, data: `${IMG_PREFIX}temp/${fileName}/${file.newFilename}` })
+        responseError({ code: 12011, data: `${FILE_PREFIX}temp/${fileName}/${file.newFilename}` })
       );
     } catch (err) {
       fs.remove(chunkDir);
@@ -158,14 +158,14 @@ export async function handleUploadFile(ctx: Context, file: File): Promise<string
         path.join(__dirname, `${filePathPrefix}/${filePath}`)
       );
 
-      return `${IMG_PREFIX}${filePath}`;
+      return `${FILE_PREFIX}${filePath}`;
     }
 
     await oss.put(
       `${UPLOAD_PREFIX}${filePath}/${file.newFilename}`,
       `${destPath}/${file.newFilename}`
     );
-    return `${IMG_PREFIX}${filePath}/${file.newFilename}`;
+    return `${FILE_PREFIX}${filePath}/${file.newFilename}`;
   } catch (error: any) {
     fs.remove(file.filepath);
     throw responseError({ code: error?.code ?? 12007, data: error?.data, message: error?.message });

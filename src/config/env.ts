@@ -25,8 +25,8 @@ export const DOMAIN = process.env.DOMAIN;
 export const URL = `${SCHEME}://${DOMAIN}:${PORT}`;
 // 上传前缀
 export const UPLOAD_PREFIX = "upload/";
-// 图片前缀
-export const IMG_PREFIX = `${SCHEME}://${DOMAIN}:${PORT}/${UPLOAD_PREFIX}`;
+// 上传文件地址前缀
+export const FILE_PREFIX = `${SCHEME}://${DOMAIN}:${PORT}/${UPLOAD_PREFIX}`;
 
 // mysql配置
 export const _MYSQL = {
