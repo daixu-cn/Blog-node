@@ -80,7 +80,7 @@ export function UploadError(code: number): string {
     case 12016:
       return "文件转换异常";
     case 12017:
-      return "该文件不是图片格式";
+      return "仅支持 JPEG、PNG、WebP、AVIF、GIF、TIFF 格式的图片";
     case 12018:
       return "禁止删除 Upload 之外的文件";
     default:

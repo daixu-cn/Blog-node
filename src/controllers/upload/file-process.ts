@@ -182,17 +182,25 @@ export async function fileToBase64(file: File): Promise<string> {
   try {
     // 校验文件是否为图片
     const fileTypeResult = await FileType.fromFile(file.filepath);
-    if (fileTypeResult?.mime.split("/")[0] !== "image") {
-      throw responseError({ code: 12017 });
+    if (fileTypeResult) {
+      const fileType = fileTypeResult.mime.split("/")[0];
+      const fileMimeType = fileTypeResult.mime.split("/")[1];
+
+      // sharp允许的类型
+      const allowType = ["png", "jpeg", "gif", "webp", "avif", "tiff"];
+      if (fileType !== "image" || !allowType.includes(fileMimeType)) {
+        throw responseError({ code: 12017 });
+      }
+
+      const fileBuffer = await sharp(await fs.readFile(file.filepath), { animated: true })
+        .webp()
+        .toBuffer();
+
+      // 使用webp格式 优化图片体积
+      return `data:image/webp;base64,${fileBuffer.toString("base64")}`;
+      // return `data:${fileMimeType};base64,${fileBuffer.toString("base64")}`;
     }
-
-    const fileBuffer = await sharp(await fs.readFile(file.filepath), { animated: true })
-      .webp()
-      .toBuffer();
-
-    // 使用webp格式 优化图片体积
-    return `data:image/webp;base64,${fileBuffer.toString("base64")}`;
-    // return `data:${fileTypeResult.mime};base64,${fileBuffer.toString("base64")}`;
+    throw responseError({ code: 12017 });
   } catch (error: any) {
     throw responseError({
       code: error?.code ?? 12007,
