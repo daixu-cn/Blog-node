@@ -3,6 +3,10 @@ import FileType from "file-type";
 import path from "path";
 import got from "got";
 import { generateId } from "@/utils/api";
+import { UPLOAD_PREFIX } from "@/config/env";
+import oss from "@/utils/oss";
+
+const filePathPrefix = `../../public/${UPLOAD_PREFIX}`;
 
 /**
  * @description 区分不同模块获取对应路径
@@ -45,14 +49,20 @@ export function saveFile(src: string, module: number) {
       // 将文件移入该目录
       const filePath = path.join(
         __dirname,
-        `../../public/upload/${fileType}${moduleFormat(fileType, module)}`
+        `${filePathPrefix}${fileType}${moduleFormat(fileType, module)}`
       );
 
       // 校验文件目录是否存在
       fs.ensureDirSync(filePath);
       // 写入文件
       await fs.writeFile(`${filePath}/${fileName}`, buffer);
-      resolve(`${fileType}${moduleFormat(fileType, module)}/${fileName}`);
+
+      // 文件最终地址
+      const result = `${fileType}${moduleFormat(fileType, module)}/${fileName}`;
+      // 上传到oss
+      oss.put(`${UPLOAD_PREFIX}${result}`, path.join(__dirname, `${filePathPrefix}${result}`));
+      // 返回文件地址
+      resolve(result);
     } catch (err) {
       reject(err);
     }

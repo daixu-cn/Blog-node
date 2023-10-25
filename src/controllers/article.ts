@@ -13,14 +13,17 @@ import { recursiveDeletionComment } from "@/controllers/comment";
 import redis from "@/utils/redis";
 import dayjs from "dayjs";
 import { sendMail } from "@/utils/nodemailer";
-import { FILE_PREFIX } from "@/config/env";
+import { UPLOAD_PREFIX, FILE_PREFIX } from "@/config/env";
 import fs from "fs-extra";
 import path from "path";
+import oss from "@/utils/oss";
 
 import User from "@/models/user";
 import Article from "@/models/article";
 import Comment from "@/models/comment";
 import Reply from "@/models/reply";
+
+const filePathPrefix = `../../public/${UPLOAD_PREFIX}`;
 
 // 文章响应内容
 const ARTICLE_ATTRIBUTES: FindAttributeOptions = [
@@ -386,8 +389,11 @@ export default {
           await recursiveDeletionComment(transaction, item?.dataValues.commentId);
         }
 
-        fs.remove(path.join(__dirname, `../../public/upload/${article?.dataValues.poster}`));
-        fs.remove(path.join(__dirname, `../../public/upload/${article?.dataValues.video}`));
+        fs.remove(path.join(__dirname, `${filePathPrefix}${article?.dataValues.poster}`));
+        oss.destroy(`${UPLOAD_PREFIX}${article?.dataValues.poster}`);
+
+        fs.remove(path.join(__dirname, `${filePathPrefix}${article?.dataValues.video}`));
+        oss.destroy(`${UPLOAD_PREFIX}${article?.dataValues.video}`);
       } else {
         throw responseError({ code: 13007 });
       }

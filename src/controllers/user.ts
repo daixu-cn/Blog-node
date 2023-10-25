@@ -9,9 +9,12 @@ import { sendMail } from "@/utils/nodemailer";
 import http from "@/server";
 import { saveFile } from "@/utils/file";
 import User from "@/models/user";
-import { FILE_PREFIX, _JWT, _SECRET } from "@/config/env";
+import { UPLOAD_PREFIX, FILE_PREFIX, _JWT, _SECRET } from "@/config/env";
 import fs from "fs-extra";
 import path from "path";
+import oss from "@/utils/oss";
+
+const filePathPrefix = `../../public/${UPLOAD_PREFIX}`;
 
 const USER_ATTRIBUTES: FindAttributeOptions = [
   "userId",
@@ -415,7 +418,8 @@ export default {
         ctx.body = response({ data: user, message: "修改成功" });
 
         if (removeAvatar && !removeAvatar.endsWith("avatar.png")) {
-          fs.remove(path.join(__dirname, `../../public/upload/${removeAvatar}`));
+          fs.remove(path.join(__dirname, `${filePathPrefix}${removeAvatar}`));
+          oss.destroy(`${UPLOAD_PREFIX}${removeAvatar}`);
         }
       } else {
         throw responseError({ code: 11010 });
