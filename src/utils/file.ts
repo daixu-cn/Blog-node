@@ -5,6 +5,8 @@ import got from "got";
 import { generateId } from "@/utils/api";
 import { UPLOAD_PREFIX } from "@/config/env";
 import oss from "@/utils/oss";
+import { DirectoriesList, FileStats } from "./type";
+import { URL } from "@/config/env";
 
 const filePathPrefix = `../../public/${UPLOAD_PREFIX}`;
 
@@ -17,6 +19,8 @@ const filePathPrefix = `../../public/${UPLOAD_PREFIX}`;
 export function moduleFormat(fileType: string | undefined, module: number) {
   if (fileType === "image") {
     switch (module) {
+      case -1:
+        return "/*";
       case 0:
         return "/article";
       case 1:
@@ -67,4 +71,50 @@ export function saveFile(src: string, module: number) {
       reject(err);
     }
   });
+}
+
+/**
+ * @description 递归获取指定文件夹下的所有文件夹(包含多级子文件夹)
+ * @param {string} dirPath 文件夹路径
+ * @return {DirectoriesList[]} 返回文件夹列表
+ */
+export function getDirectories(dirPath: string): DirectoriesList[] {
+  // 初始化文件和文件夹列表
+  const result: DirectoriesList[] = [];
+  // 获取指定文件夹下的所有文件
+  const files = fs.readdirSync(dirPath);
+
+  for (const name of files) {
+    // 判断是否是文件夹
+    if (fs.statSync(path.join(dirPath, name)).isDirectory()) {
+      result.push({ name, subDirectories: getDirectories(`${dirPath}/${name}`) });
+    }
+  }
+
+  return result;
+}
+
+/**
+ * @description 获取指令文件夹下的所有文件
+ * @param {string} dirPath 文件夹路径
+ * @return {FileStats[]} 返回文件列表
+ */
+export function getFiles(dirPath: string): FileStats[] {
+  // 初始化文件和文件夹列表
+  const result: FileStats[] = [];
+  // 获取指定文件夹下的所有文件
+  const files = fs.readdirSync(dirPath);
+
+  for (const name of files) {
+    const stat = fs.statSync(path.join(dirPath, name));
+    if (stat.isFile()) {
+      result.push({
+        ...stat,
+        name,
+        path: `${URL}${dirPath.split("/public")[1]}/${name}`
+      });
+    }
+  }
+
+  return result;
 }

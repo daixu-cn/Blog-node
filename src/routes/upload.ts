@@ -39,19 +39,19 @@ router.prefix("/upload");
  *                 description: 要替换的文件地址，存在多个使用 ; 分割（例如：upload/image/article/202665875986419712.png;http://localhost:3000/upload/image/article/202665875986419965.png）
  *               module:
  *                 type: string
- *                 description: 文件格式必传：文件所属模块（文章：0、用户：1）
+ *                 description: 文件类型(必传)：文件所属模块（文章：0、用户：1、其他：-1）
  *               name:
  *                 type: string
- *                 description: 分片文件必传：文件标识（确保同一个文件的标识一致）
+ *                 description: 分片文件(必传)：文件标识（确保同一个文件的标识一致）
  *               chunk:
  *                 type: string
- *                 description: 分片文件必传：当前是第几个分片文件
+ *                 description: 分片文件(必传)：当前是第几个分片文件
  *               chunks:
  *                 type: string
- *                 description: 分片文件必传：该文件被分成了多少个分片
+ *                 description: 分片文件(必传)：该文件被分成了多少个分片
  *               hash:
  *                 type: string
- *                 description: 分片文件必传：分片文件的 md5 值
+ *                 description: 分片文件(必传)：分片文件的 md5 值
  *             required:
  *               - file
  *     responses:

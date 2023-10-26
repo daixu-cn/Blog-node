@@ -15,5 +15,17 @@ import comment from "@/routes/comment";
 import reply from "@/routes/reply";
 import link from "@/routes/link";
 import update from "@/routes/update";
+import file from "@/routes/file";
 
-export default combineRouters(swagger, server, upload, user, article, comment, reply, link, update);
+export default combineRouters(
+  swagger,
+  server,
+  upload,
+  user,
+  article,
+  comment,
+  reply,
+  link,
+  update,
+  file
+);

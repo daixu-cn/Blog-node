@@ -89,7 +89,7 @@ export function chunkMerge(ctx: Context, file: File) {
           throw responseError({ code: 12003 });
         }
         // 获取文件类型
-        const mime = fileTypeResult?.mime.split("/")[0];
+        const mime = parseInt(module) === -1 ? "*" : fileTypeResult?.mime.split("/")[0];
         // 将文件移入该目录
         const destPath = path.join(
           __dirname,
@@ -132,7 +132,7 @@ export async function handleUploadFile(ctx: Context, file: File): Promise<string
     const { module, name, chunk, hash } = ctx.request.body;
 
     // 文件类型
-    const fileType = file.mimetype?.split("/")[0];
+    const fileType = parseInt(module) === -1 ? "*" : file.mimetype?.split("/")[0];
 
     // 最终的文件地址
     const filePath = chunk
@@ -153,18 +153,12 @@ export async function handleUploadFile(ctx: Context, file: File): Promise<string
     if (chunk) {
       // 校验是否为最后一个分片
       const filePath = await chunkMerge(ctx, file);
-      await oss.put(
-        `${UPLOAD_PREFIX}${filePath}`,
-        path.join(__dirname, `${filePathPrefix}/${filePath}`)
-      );
+      oss.put(`${UPLOAD_PREFIX}${filePath}`, path.join(__dirname, `${filePathPrefix}/${filePath}`));
 
       return `${FILE_PREFIX}${filePath}`;
     }
 
-    await oss.put(
-      `${UPLOAD_PREFIX}${filePath}/${file.newFilename}`,
-      `${destPath}/${file.newFilename}`
-    );
+    oss.put(`${UPLOAD_PREFIX}${filePath}/${file.newFilename}`, `${destPath}/${file.newFilename}`);
     return `${FILE_PREFIX}${filePath}/${file.newFilename}`;
   } catch (error: any) {
     fs.remove(file.filepath);

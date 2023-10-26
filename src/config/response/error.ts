@@ -202,6 +202,22 @@ export function UpdateError(code: number): string {
   }
 }
 
+/**
+ * @description 文件模块错误码：18001--18999
+ * @param {number} code 状态码
+ * @return {string} 错误信息
+ */
+export function FileError(code: number): string {
+  switch (code) {
+    case 18001:
+      return "文件目录查询失败";
+    case 18002:
+      return "文件列表查询失败";
+    default:
+      return "文件模块异常";
+  }
+}
+
 interface Params {
   code?: number;
   data?: any;
@@ -217,7 +233,9 @@ export default function errorFormat(params: Params) {
     return response({ code, message, data });
   }
 
-  if (code > 17000) {
+  if (code > 18000) {
+    return response({ code, message: FileError(code), data });
+  } else if (code > 17000) {
     return response({ code, message: UpdateError(code), data });
   } else if (code > 16000) {
     return response({ code, message: ServerError(code), data });
