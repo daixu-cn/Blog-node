@@ -8,7 +8,10 @@ class OSS {
   put(name: string, file: any, options?: AliOSS.PutObjectOptions) {
     return new Promise<AliOSS.PutObjectResult>(async (resolve, reject) => {
       try {
-        const result = await aliOSS.put(name, file, options);
+        const result = await aliOSS.put(name, file, {
+          timeout: 1000 * 60 * 10,
+          ...options
+        });
 
         if (result.res.statusCode === 200) {
           resolve(result);
