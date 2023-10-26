@@ -4,7 +4,7 @@
 /node_modules
 /logs
 /backups
-/public/upload
+/public
 /.husky
 
 # testing
