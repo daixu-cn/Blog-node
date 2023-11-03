@@ -7,11 +7,10 @@
 import { Context } from "koa";
 import response from "@/config/response";
 import responseError from "@/config/response/error";
-import fs from "fs-extra";
 import path from "path";
 import { getDirectories, getFiles } from "@/utils/file";
-
-const PUBLIC_DIR_PATH = path.join(__dirname, "../../public");
+import xlsx from "node-xlsx";
+import fs from "fs-extra";
 
 export default {
   /**
@@ -128,6 +127,27 @@ export default {
       });
     } catch (error: any) {
       throw responseError({ code: 18002, message: error?.message });
+    }
+  },
+  xlsx_parse(ctx: Context) {
+    const file = ctx.request.files?.file;
+    if (!Array.isArray(file)) {
+      try {
+        if (!file) {
+          throw responseError({ code: 12001 });
+        }
+
+        ctx.body = response({
+          data: xlsx.parse(file.filepath),
+          message: "解析成功"
+        });
+      } catch (error: any) {
+        throw responseError({ code: 18003, message: error?.message });
+      } finally {
+        if (file) {
+          fs.remove(file?.filepath);
+        }
+      }
     }
   }
 };

@@ -213,6 +213,8 @@ export function FileError(code: number): string {
       return "文件目录查询失败";
     case 18002:
       return "文件列表查询失败";
+    case 18003:
+      return "表格解析失败";
     default:
       return "文件模块异常";
   }
