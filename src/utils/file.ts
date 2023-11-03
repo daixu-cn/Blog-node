@@ -8,7 +8,7 @@ import oss from "@/utils/oss";
 import { DirectoriesList, FileStats } from "./type";
 import { URL } from "@/config/env";
 
-const filePathPrefix = `../../public/${UPLOAD_PREFIX}`;
+const FILE_UPLOAD_PATH_PREFIX = `../../public/${UPLOAD_PREFIX}`;
 
 /**
  * @description 区分不同模块获取对应路径
@@ -53,7 +53,7 @@ export function saveFile(src: string, module: number) {
       // 将文件移入该目录
       const filePath = path.join(
         __dirname,
-        `${filePathPrefix}${fileType}${moduleFormat(fileType, module)}`
+        `${FILE_UPLOAD_PATH_PREFIX}${fileType}${moduleFormat(fileType, module)}`
       );
 
       // 校验文件目录是否存在
@@ -64,7 +64,10 @@ export function saveFile(src: string, module: number) {
       // 文件最终地址
       const result = `${fileType}${moduleFormat(fileType, module)}/${fileName}`;
       // 上传到oss
-      oss.put(`${UPLOAD_PREFIX}${result}`, path.join(__dirname, `${filePathPrefix}${result}`));
+      oss.put(
+        `${UPLOAD_PREFIX}${result}`,
+        path.join(__dirname, `${FILE_UPLOAD_PATH_PREFIX}${result}`)
+      );
       // 返回文件地址
       resolve(result);
     } catch (err) {

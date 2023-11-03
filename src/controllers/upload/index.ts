@@ -3,20 +3,28 @@ import response from "@/config/response";
 import responseError from "@/config/response/error";
 import { generateId } from "@/utils/api";
 import fs from "fs-extra";
-import koaBody from "koa-body";
+import koaBody, { ExtendedFormidableOptions } from "koa-body";
 import path from "path";
 import { UPLOAD_PREFIX, FILE_PREFIX } from "@/config/env";
 import oss from "@/utils/oss";
-import { filePathPrefix, handleUploadFile, fileToBase64 } from "@/controllers/upload/file-process";
+import {
+  FILE_UPLOAD_PATH_PREFIX,
+  handleUploadFile,
+  fileToBase64
+} from "@/controllers/upload/file-process";
 
 export default {
   /**
    * @description 上传文件
    * @param {number} maxFileSize 默认单个文件最大为2M
+   * @param {ExtendedFormidableOptions} formidable 配置项
    * @returns {Middleware} koaBody
    */
-  koaBody(maxFileSize: number = 1024 * 1024 * 2): Middleware {
-    const uploadDir = path.join(__dirname, filePathPrefix);
+  koaBody(
+    maxFileSize: number = 1024 * 1024 * 2,
+    formidable?: ExtendedFormidableOptions
+  ): Middleware {
+    const uploadDir = path.join(__dirname, FILE_UPLOAD_PATH_PREFIX);
     return koaBody({
       multipart: true,
       formidable: {
@@ -30,7 +38,8 @@ export default {
         onFileBegin(name, file) {
           // 判断一下上传的路径是否存在，避免报错
           fs.ensureDirSync(uploadDir);
-        }
+        },
+        ...formidable
       },
       onError(error) {
         throw responseError({ code: 12003, message: error?.message });
@@ -65,7 +74,7 @@ export default {
         const replaceFiles = ctx.request.body.replaceFiles.split(";");
         for (const item of replaceFiles) {
           const filePath = item.replace(FILE_PREFIX, "");
-          const fullPath = path.join(__dirname, `${filePathPrefix}/${filePath}`);
+          const fullPath = path.join(__dirname, `${FILE_UPLOAD_PATH_PREFIX}/${filePath}`);
 
           if (fs.existsSync(fullPath)) {
             oss.destroy(`${UPLOAD_PREFIX}${filePath}`);
@@ -85,7 +94,7 @@ export default {
     try {
       const _path: string = ctx.params?.path;
       const filePath = _path?.replace(FILE_PREFIX, "");
-      const fullPath = path.join(__dirname, `${filePathPrefix}/${filePath}`);
+      const fullPath = path.join(__dirname, `${FILE_UPLOAD_PATH_PREFIX}/${filePath}`);
 
       if (_path?.includes(UPLOAD_PREFIX)) {
         if (fs.existsSync(fullPath)) {

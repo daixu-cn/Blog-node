@@ -14,7 +14,7 @@ import fs from "fs-extra";
 import path from "path";
 import oss from "@/utils/oss";
 
-const filePathPrefix = `../../public/${UPLOAD_PREFIX}`;
+const FILE_UPLOAD_PATH_PREFIX = `../../public/${UPLOAD_PREFIX}`;
 
 const USER_ATTRIBUTES: FindAttributeOptions = [
   "userId",
@@ -418,7 +418,7 @@ export default {
         ctx.body = response({ data: user, message: "修改成功" });
 
         if (removeAvatar && !removeAvatar.endsWith("avatar.png")) {
-          fs.remove(path.join(__dirname, `${filePathPrefix}${removeAvatar}`));
+          fs.remove(path.join(__dirname, `${FILE_UPLOAD_PATH_PREFIX}${removeAvatar}`));
           oss.destroy(`${UPLOAD_PREFIX}${removeAvatar}`);
         }
       } else {

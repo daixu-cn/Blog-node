@@ -12,7 +12,7 @@ import oss from "@/utils/oss";
 import sharp from "sharp";
 
 // 上传文件路径前缀
-export const filePathPrefix = `../../../public/${UPLOAD_PREFIX}`;
+export const FILE_UPLOAD_PATH_PREFIX = `../../../public/${UPLOAD_PREFIX}`;
 
 /**
  * @description 分片文件校验
@@ -37,13 +37,16 @@ export function chunkFileVerification(ctx: Context, file: File) {
   // 如果分片已存在，直接返回
   if (
     fs.existsSync(
-      path.join(__dirname, `${filePathPrefix}/temp/${decodeURIComponent(name)}/${hash}-${chunk}`)
+      path.join(
+        __dirname,
+        `${FILE_UPLOAD_PATH_PREFIX}/temp/${decodeURIComponent(name)}/${hash}-${chunk}`
+      )
     )
   ) {
     throw responseError({
       code: 12009,
       data: fs.readdirSync(
-        path.join(__dirname, `${filePathPrefix}/temp/${decodeURIComponent(name)}`)
+        path.join(__dirname, `${FILE_UPLOAD_PATH_PREFIX}/temp/${decodeURIComponent(name)}`)
       ).length
     });
   }
@@ -60,10 +63,10 @@ export function chunkMerge(ctx: Context, file: File) {
     const { module, name, chunk, chunks } = ctx.request.body;
     const fileName = decodeURIComponent(name);
     // 获取分片文件目录和文件路径
-    const chunkDir = path.join(__dirname, `${filePathPrefix}/temp/${fileName}`);
+    const chunkDir = path.join(__dirname, `${FILE_UPLOAD_PATH_PREFIX}/temp/${fileName}`);
 
     // 合并之后的临时文件地址
-    const filePath = path.join(__dirname, `${filePathPrefix}/${name}`);
+    const filePath = path.join(__dirname, `${FILE_UPLOAD_PATH_PREFIX}/${name}`);
 
     try {
       // 判断是否为最后一个分片
@@ -93,7 +96,7 @@ export function chunkMerge(ctx: Context, file: File) {
         // 将文件移入该目录
         const destPath = path.join(
           __dirname,
-          `${filePathPrefix}/${mime}${moduleFormat(mime, parseInt(module))}`
+          `${FILE_UPLOAD_PATH_PREFIX}/${mime}${moduleFormat(mime, parseInt(module))}`
         );
 
         // 判断文件目录是否存在，如果不存在则创建一个
@@ -143,7 +146,7 @@ export async function handleUploadFile(ctx: Context, file: File): Promise<string
     chunk && chunkFileVerification(ctx, file);
 
     // 将文件移入该目录
-    const destPath = path.join(__dirname, `${filePathPrefix}/${filePath}`);
+    const destPath = path.join(__dirname, `${FILE_UPLOAD_PATH_PREFIX}/${filePath}`);
 
     // 判断文件目录是否存在，如果不存在则创建一个
     fs.ensureDirSync(destPath);
@@ -153,7 +156,10 @@ export async function handleUploadFile(ctx: Context, file: File): Promise<string
     if (chunk) {
       // 校验是否为最后一个分片
       const filePath = await chunkMerge(ctx, file);
-      oss.put(`${UPLOAD_PREFIX}${filePath}`, path.join(__dirname, `${filePathPrefix}/${filePath}`));
+      oss.put(
+        `${UPLOAD_PREFIX}${filePath}`,
+        path.join(__dirname, `${FILE_UPLOAD_PATH_PREFIX}/${filePath}`)
+      );
 
       return `${FILE_PREFIX}${filePath}`;
     }

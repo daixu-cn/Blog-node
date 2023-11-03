@@ -19,7 +19,7 @@ router.prefix("/upload");
  *     tags:
  *       - 文件服务
  *     summary: 上传文件
- *     description: 上传文件到服务器，可同时上传多个文件，单个文件最大为5M，如果超过5M，请使用分片上传规则
+ *     description: 上传文件到服务器，可同时上传多个文件，单个文件最大为2M，如果超过2M，请使用分片上传规则
  *     requestBody:
  *       description:
  *       required: true
