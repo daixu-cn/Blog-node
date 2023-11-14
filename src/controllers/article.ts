@@ -13,16 +13,13 @@ import { recursiveDeletionComment } from "@/controllers/comment";
 import redis from "@/utils/redis";
 import dayjs from "dayjs";
 import { sendMail } from "@/utils/nodemailer";
-import { UPLOAD_PREFIX, FILE_PREFIX } from "@/config/env";
+import { ASSET_DIR, ASSET_PREFIX } from "@/config/env";
 import fs from "fs-extra";
-import path from "path";
 
 import User from "@/models/user";
 import Article from "@/models/article";
 import Comment from "@/models/comment";
 import Reply from "@/models/reply";
-
-const FILE_UPLOAD_PATH_PREFIX = `../../public/${UPLOAD_PREFIX}`;
 
 // 文章响应内容
 const ARTICLE_ATTRIBUTES: FindAttributeOptions = [
@@ -170,8 +167,8 @@ export default {
         title,
         description,
         category,
-        poster: poster ? poster.replace(FILE_PREFIX, "") : undefined,
-        video: video ? video.replace(FILE_PREFIX, "") : undefined,
+        poster: poster ? poster.replace(ASSET_PREFIX, "") : undefined,
+        video: video ? video.replace(ASSET_PREFIX, "") : undefined,
         content,
         disableComment,
         isPrivate,
@@ -274,8 +271,8 @@ export default {
           title,
           content,
           category,
-          poster: poster ? poster.replace(FILE_PREFIX, "") : undefined,
-          video: video ? video.replace(FILE_PREFIX, "") : undefined,
+          poster: poster ? poster.replace(ASSET_PREFIX, "") : undefined,
+          video: video ? video.replace(ASSET_PREFIX, "") : undefined,
           description,
           disableComment,
           isPrivate
@@ -388,9 +385,8 @@ export default {
           await recursiveDeletionComment(transaction, item?.dataValues.commentId);
         }
 
-        fs.remove(path.join(__dirname, `${FILE_UPLOAD_PATH_PREFIX}${article?.dataValues.poster}`));
-
-        fs.remove(path.join(__dirname, `${FILE_UPLOAD_PATH_PREFIX}${article?.dataValues.video}`));
+        fs.remove(`${ASSET_DIR}${article?.dataValues.poster}`);
+        fs.remove(`${ASSET_DIR}${article?.dataValues.video}`);
       } else {
         throw responseError({ code: 13007 });
       }

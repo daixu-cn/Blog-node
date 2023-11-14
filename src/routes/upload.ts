@@ -34,12 +34,9 @@ router.prefix("/upload");
  *                 items:
  *                   type: string
  *                   format: binary
- *               replaceFiles:
+ *               replaceFile:
  *                 type: string
- *                 description: 要替换的文件地址，存在多个使用 ; 分割（例如：upload/image/article/202665875986419712.png;http://localhost:3000/upload/image/article/202665875986419965.png）
- *               module:
- *                 type: string
- *                 description: 文件类型(必传)：文件所属模块（文章：0、用户：1、其他：-1）
+ *                 description: 替换文件：传入文件路径或者完整地址，传入该属性则只能传入一个文件
  *               name:
  *                 type: string
  *                 description: 分片文件(必传)：文件标识（确保同一个文件的标识一致）

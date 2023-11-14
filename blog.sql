@@ -141,7 +141,7 @@ CREATE TABLE `user` (
   `user_name` char(100) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '用户名',
   `password` char(100) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '1bc2a8b7478a135446ee4e98f924efbf' COMMENT '密码',
   `email` char(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '用户邮箱',
-  `avatar` char(50) COLLATE utf8mb4_unicode_ci DEFAULT 'image/user/avatar.png' COMMENT '用户头像',
+  `avatar` char(50) COLLATE utf8mb4_unicode_ci DEFAULT '/image/avatar.png' COMMENT '用户头像',
   `qq` char(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'qq',
   `github` char(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'github',
   `google` char(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'google',

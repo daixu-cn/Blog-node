@@ -75,12 +75,14 @@ export function UploadError(code: number): string {
       return "文件不存在";
     case 12014:
       return "删除权限不足";
+    case 12015:
+      return "替换文件时，不支持多个文件";
     case 12016:
       return "文件转换异常";
     case 12017:
       return "仅支持 JPEG、PNG、WebP、AVIF、GIF、TIFF 格式的图片";
     case 12018:
-      return "禁止删除 Upload 之外的文件";
+      return "禁止操作 Blog 之外的文件";
     default:
       return "上传模块异常";
   }

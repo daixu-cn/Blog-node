@@ -11,6 +11,7 @@ import path from "path";
 import { getDirectories, getFiles } from "@/utils/file";
 import xlsx from "node-xlsx";
 import fs from "fs-extra";
+import { ASSET_DIR } from "@/config/env";
 
 export default {
   /**
@@ -33,7 +34,7 @@ export default {
   getDirectorys(ctx: Context) {
     try {
       ctx.body = response({
-        data: getDirectories(path.join(__dirname, "../../public")),
+        data: getDirectories(ASSET_DIR),
         message: "查询成功"
       });
     } catch (error: any) {
@@ -45,7 +46,7 @@ export default {
    * components:
    *   schemas:
    *     File:
-   *       description: 友联信息
+   *       description: 文件信息
    *       type: object
    *       properties:
    *         name:
@@ -115,13 +116,15 @@ export default {
    */
   list(ctx: Context) {
     try {
-      const { directorie = "/", page = 1, pageSize = 10 } = ctx.params;
+      const { directorie = "/", keyword = "", page = 1, pageSize = 10 } = ctx.params;
 
-      const files = getFiles(path.join(__dirname, "../../public", directorie));
+      const files = getFiles(`${ASSET_DIR}${directorie}`);
       ctx.body = response({
         data: {
           total: files.length,
-          list: files.slice((page - 1) * pageSize, page * pageSize)
+          list: files
+            .filter(file => file.name.includes(keyword))
+            .slice((page - 1) * pageSize, page * pageSize)
         },
         message: "查询成功"
       });

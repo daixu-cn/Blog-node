@@ -7,11 +7,10 @@
 import fs from "fs-extra";
 import { errorLogger } from "@/utils/log4";
 import schedule from "node-schedule";
-import path from "path";
-import { PM2_INSTANCE } from "@/config/env";
+import { ASSET_DIR, PM2_INSTANCE } from "@/config/env";
 
 // 临时文件目录
-const TEMP_DIR = path.join(__dirname, "../../public/upload/temp");
+const TEMP_DIR = `${ASSET_DIR}/temp`;
 // 临时文件清理周期，单位为毫秒
 const CLEAN_INTERVAL = 12 * 60 * 60 * 1000;
 

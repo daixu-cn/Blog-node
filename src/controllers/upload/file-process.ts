@@ -4,14 +4,10 @@ import { generateId } from "@/utils/api";
 import fs from "fs-extra";
 import { File } from "formidable";
 import path from "path";
-import { UPLOAD_PREFIX, FILE_PREFIX } from "@/config/env";
+import { ASSET_DIR, ASSET_PREFIX } from "@/config/env";
 import FileType from "file-type";
 import crypto from "crypto";
-import { moduleFormat } from "@/utils/file";
 import sharp from "sharp";
-
-// 上传文件路径前缀
-export const FILE_UPLOAD_PATH_PREFIX = `../../../public/${UPLOAD_PREFIX}`;
 
 /**
  * @description 分片文件校验
@@ -34,19 +30,10 @@ export function chunkFileVerification(ctx: Context, file: File) {
   }
 
   // 如果分片已存在，直接返回
-  if (
-    fs.existsSync(
-      path.join(
-        __dirname,
-        `${FILE_UPLOAD_PATH_PREFIX}/temp/${decodeURIComponent(name)}/${hash}-${chunk}`
-      )
-    )
-  ) {
+  if (fs.existsSync(`${ASSET_DIR}/temp/${decodeURIComponent(name)}/${hash}-${chunk}`)) {
     throw responseError({
       code: 12009,
-      data: fs.readdirSync(
-        path.join(__dirname, `${FILE_UPLOAD_PATH_PREFIX}/temp/${decodeURIComponent(name)}`)
-      ).length
+      data: fs.readdirSync(`${ASSET_DIR}/temp/${decodeURIComponent(name)}`).length
     });
   }
 }
@@ -59,13 +46,13 @@ export function chunkFileVerification(ctx: Context, file: File) {
  */
 export function chunkMerge(ctx: Context, file: File) {
   return new Promise<string>(async (resolve, reject) => {
-    const { module, name, chunk, chunks } = ctx.request.body;
+    const { name, chunk, chunks } = ctx.request.body;
     const fileName = decodeURIComponent(name);
     // 获取分片文件目录和文件路径
-    const chunkDir = path.join(__dirname, `${FILE_UPLOAD_PATH_PREFIX}/temp/${fileName}`);
+    const chunkDir = `${ASSET_DIR}/temp/${fileName}`;
 
     // 合并之后的临时文件地址
-    const filePath = path.join(__dirname, `${FILE_UPLOAD_PATH_PREFIX}/${name}`);
+    const filePath = `${ASSET_DIR}/${name}`;
 
     try {
       // 判断是否为最后一个分片
@@ -91,12 +78,9 @@ export function chunkMerge(ctx: Context, file: File) {
           throw responseError({ code: 12003 });
         }
         // 获取文件类型
-        const mime = parseInt(module) === -1 ? "*" : fileTypeResult?.mime.split("/")[0];
+        const mime = fileTypeResult?.mime.split("/")[0];
         // 将文件移入该目录
-        const destPath = path.join(
-          __dirname,
-          `${FILE_UPLOAD_PATH_PREFIX}/${mime}${moduleFormat(mime, parseInt(module))}`
-        );
+        const destPath = `${ASSET_DIR}/${mime}`;
 
         // 判断文件目录是否存在，如果不存在则创建一个
         fs.ensureDirSync(destPath);
@@ -109,11 +93,11 @@ export function chunkMerge(ctx: Context, file: File) {
         // 移除分片的临时文件夹
         fs.remove(chunkDir);
         // 返回合并之后的文件路径
-        resolve(`${mime}${moduleFormat(mime, parseInt(module))}/${newFileName}`);
+        resolve(`${mime}/${newFileName}`);
       }
       // 返回分片文件路径
       reject(
-        responseError({ code: 12011, data: `${FILE_PREFIX}temp/${fileName}/${file.newFilename}` })
+        responseError({ code: 12011, data: `${ASSET_DIR}/temp/${fileName}/${file.newFilename}` })
       );
     } catch (err) {
       fs.remove(chunkDir);
@@ -131,21 +115,19 @@ export function chunkMerge(ctx: Context, file: File) {
  */
 export async function handleUploadFile(ctx: Context, file: File): Promise<string> {
   try {
-    const { module, name, chunk, hash } = ctx.request.body;
+    const { name, chunk, hash } = ctx.request.body;
 
     // 文件类型
-    const fileType = parseInt(module) === -1 ? "*" : file.mimetype?.split("/")[0];
+    const fileType = file.mimetype?.split("/")[0];
 
     // 最终的文件地址
-    const filePath = chunk
-      ? `temp/${decodeURIComponent(name)}`
-      : `${fileType}${moduleFormat(fileType, parseInt(module))}`;
+    const filePath = chunk ? `temp/${decodeURIComponent(name)}` : `${fileType}`;
 
     // 对分片文件进行校验
     chunk && chunkFileVerification(ctx, file);
 
     // 将文件移入该目录
-    const destPath = path.join(__dirname, `${FILE_UPLOAD_PATH_PREFIX}/${filePath}`);
+    const destPath = `${ASSET_DIR}/${filePath}`;
 
     // 判断文件目录是否存在，如果不存在则创建一个
     fs.ensureDirSync(destPath);
@@ -155,10 +137,10 @@ export async function handleUploadFile(ctx: Context, file: File): Promise<string
     if (chunk) {
       // 校验是否为最后一个分片
       const filePath = await chunkMerge(ctx, file);
-      return `${FILE_PREFIX}${filePath}`;
+      return `${ASSET_PREFIX}/${filePath}`;
     }
 
-    return `${FILE_PREFIX}${filePath}/${file.newFilename}`;
+    return `${ASSET_PREFIX}/${filePath}/${file.newFilename}`;
   } catch (error: any) {
     fs.remove(file.filepath);
     throw responseError({ code: error?.code ?? 12007, data: error?.data, message: error?.message });

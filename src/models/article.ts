@@ -8,7 +8,7 @@ import { DataTypes } from "sequelize";
 import sequelize from "@/config/sequelize";
 import { category } from "@/global/enum";
 import { generateId } from "@/utils/api";
-import { FILE_PREFIX } from "@/config/env";
+import { ASSET_PREFIX } from "@/config/env";
 
 const Article = sequelize.define(
   "article",
@@ -57,7 +57,7 @@ const Article = sequelize.define(
       defaultValue: "",
       get() {
         const poster = this.getDataValue("poster");
-        return poster ? `${FILE_PREFIX}${poster}` : null;
+        return poster ? `${ASSET_PREFIX}${poster}` : null;
       }
     },
     video: {
@@ -65,7 +65,7 @@ const Article = sequelize.define(
       comment: "视频",
       get() {
         const video = this.getDataValue("video");
-        return video ? `${FILE_PREFIX}${video}` : null;
+        return video ? `${ASSET_PREFIX}${video}` : null;
       }
     },
     content: {

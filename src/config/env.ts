@@ -23,10 +23,10 @@ export const PORT = Number(process.env.PORT);
 export const DOMAIN = process.env.DOMAIN;
 // 请求地址
 export const URL = `${SCHEME}://${DOMAIN}:${PORT}`;
-// 上传前缀
-export const UPLOAD_PREFIX = "upload/";
-// 上传文件地址前缀
-export const FILE_PREFIX = `${SCHEME}://${DOMAIN}:${PORT}/${UPLOAD_PREFIX}`;
+// 资源存放路径
+export const ASSET_DIR = process.env.ASSET_DIR;
+// 资源获取路径前缀
+export const ASSET_PREFIX = process.env.ASSET_PREFIX;
 
 // mysql配置
 export const _MYSQL = {

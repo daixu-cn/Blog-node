@@ -7,7 +7,7 @@
 import { DataTypes } from "sequelize";
 import sequelize from "@/config/sequelize";
 import { generateId } from "@/utils/api";
-import { FILE_PREFIX } from "@/config/env";
+import { ASSET_PREFIX } from "@/config/env";
 
 const User = sequelize.define(
   "user",
@@ -50,9 +50,9 @@ const User = sequelize.define(
     avatar: {
       type: DataTypes.CHAR(50),
       comment: "用户头像",
-      defaultValue: "image/user/avatar.png",
+      defaultValue: "/image/avatar.png",
       get() {
-        return `${FILE_PREFIX}${this.getDataValue("avatar")}`;
+        return `${ASSET_PREFIX}${this.getDataValue("avatar")}`;
       }
     },
     qq: {

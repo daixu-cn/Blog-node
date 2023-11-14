@@ -4,13 +4,8 @@ import responseError from "@/config/response/error";
 import { generateId } from "@/utils/api";
 import fs from "fs-extra";
 import koaBody, { ExtendedFormidableOptions } from "koa-body";
-import path from "path";
-import { UPLOAD_PREFIX, FILE_PREFIX } from "@/config/env";
-import {
-  FILE_UPLOAD_PATH_PREFIX,
-  handleUploadFile,
-  fileToBase64
-} from "@/controllers/upload/file-process";
+import { ASSET_DIR, ASSET_PREFIX } from "@/config/env";
+import { handleUploadFile, fileToBase64 } from "@/controllers/upload/file-process";
 
 export default {
   /**
@@ -23,12 +18,11 @@ export default {
     maxFileSize: number = 1024 * 1024 * 2,
     formidable?: ExtendedFormidableOptions
   ): Middleware {
-    const uploadDir = path.join(__dirname, FILE_UPLOAD_PATH_PREFIX);
     return koaBody({
       multipart: true,
       formidable: {
         maxFileSize,
-        uploadDir,
+        uploadDir: ASSET_DIR,
         keepExtensions: true,
         // 重写文件名
         filename(name, ext) {
@@ -36,7 +30,7 @@ export default {
         },
         onFileBegin(name, file) {
           // 判断一下上传的路径是否存在，避免报错
-          fs.ensureDirSync(uploadDir);
+          fs.ensureDirSync(ASSET_DIR);
         },
         ...formidable
       },
@@ -47,37 +41,39 @@ export default {
   },
   async upload(ctx: Context) {
     try {
-      const { role } = ctx.params;
+      const { replaceFile } = ctx.request.body;
 
       const files = ctx.request.files;
       // 如果文件不存在
       if (!files?.file) {
         throw responseError({ code: 12002 });
       }
+      // 如果传入了 replaceFile 属性，则只能传入一个文件
+      if (replaceFile && Array.isArray(files.file)) {
+        for (const file of files.file) {
+          fs.remove(file.filepath);
+        }
+        throw responseError({ code: 12015 });
+      }
 
       // 判断是否为多个文件
       if (Array.isArray(files.file)) {
         const data: string[] = [];
-
         for (const file of files.file) {
           data.push(await handleUploadFile(ctx, file));
         }
-
         ctx.body = response({ data });
       } else {
-        ctx.body = response({ data: await handleUploadFile(ctx, files.file) });
-      }
+        const data = await handleUploadFile(ctx, files.file);
 
-      // 是否存在需要替换掉之前的文件
-      if (ctx.request.body?.replaceFiles && role === 0) {
-        const replaceFiles = ctx.request.body.replaceFiles.split(";");
-        for (const item of replaceFiles) {
-          const filePath = item.replace(FILE_PREFIX, "");
-          const fullPath = path.join(__dirname, `${FILE_UPLOAD_PATH_PREFIX}/${filePath}`);
+        if (replaceFile) {
+          const oldPath = replaceFile.replace(ASSET_PREFIX, "");
+          fs.removeSync(`${ASSET_DIR}${oldPath}`);
+          fs.renameSync(`${ASSET_DIR}${data.replace(ASSET_PREFIX, "")}`, `${ASSET_DIR}${oldPath}`);
 
-          if (fs.existsSync(fullPath)) {
-            fs.remove(fullPath);
-          }
+          ctx.body = response({ data: `${ASSET_PREFIX}${oldPath}` });
+        } else {
+          ctx.body = response({ data });
         }
       }
     } catch (error: any) {
@@ -91,10 +87,9 @@ export default {
   destroy(ctx: Context) {
     try {
       const _path: string = ctx.params?.path;
-      const filePath = _path?.replace(FILE_PREFIX, "");
-      const fullPath = path.join(__dirname, `${FILE_UPLOAD_PATH_PREFIX}/${filePath}`);
+      const fullPath = `${ASSET_DIR}${_path.replace(ASSET_PREFIX, "")}`;
 
-      if (_path?.includes(UPLOAD_PREFIX)) {
+      if (_path?.includes("/Blog/")) {
         if (fs.existsSync(fullPath)) {
           fs.remove(fullPath);
           ctx.body = response({ message: "操作成功" });

@@ -9,11 +9,8 @@ import { sendMail } from "@/utils/nodemailer";
 import http from "@/server";
 import { saveFile } from "@/utils/file";
 import User from "@/models/user";
-import { UPLOAD_PREFIX, FILE_PREFIX, _JWT, _SECRET } from "@/config/env";
+import { ASSET_DIR, ASSET_PREFIX, _JWT, _SECRET } from "@/config/env";
 import fs from "fs-extra";
-import path from "path";
-
-const FILE_UPLOAD_PATH_PREFIX = `../../public/${UPLOAD_PREFIX}`;
 
 const USER_ATTRIBUTES: FindAttributeOptions = [
   "userId",
@@ -141,7 +138,7 @@ export default {
               await User.create({
                 userName: info.nickname ?? "--",
                 qq: res.openid,
-                avatar: info.figureurl_qq_1 ? await saveFile(info.figureurl_qq_1, 1) : null
+                avatar: info.figureurl_qq_1 ? await saveFile(info.figureurl_qq_1) : null
               });
             }
           }
@@ -216,7 +213,7 @@ export default {
             } else {
               await User.create({
                 userName: info.name ?? info.login ?? "--",
-                avatar: info.avatar_url ? await saveFile(info.avatar_url, 1) : null,
+                avatar: info.avatar_url ? await saveFile(info.avatar_url) : null,
                 github,
                 email: info.email
               });
@@ -272,7 +269,7 @@ export default {
             await User.create({
               userName: res.name ?? "--",
               google,
-              avatar: res.picture ? await saveFile(res.picture, 1) : null
+              avatar: res.picture ? await saveFile(res.picture) : null
             });
           }
         }
@@ -383,7 +380,7 @@ export default {
     try {
       const { avatar, userName, email, sms, qq, google, github, emailService, userId } = ctx.params;
 
-      const removeAvatar = avatar && (await User.findByPk(userId))?.dataValues.avatar;
+      const oldAvatar = avatar && (await User.findByPk(userId))?.dataValues.avatar;
 
       if (email) {
         if ((await redis.get(email)) !== sms) {
@@ -399,7 +396,7 @@ export default {
 
       const [rows] = await User.update(
         {
-          avatar: avatar ? avatar.replace(FILE_PREFIX, "") : undefined,
+          avatar: avatar ? avatar.replace(ASSET_PREFIX, "") : undefined,
           email,
           userName,
           qq,
@@ -416,8 +413,8 @@ export default {
       if (rows) {
         ctx.body = response({ data: user, message: "修改成功" });
 
-        if (removeAvatar && !removeAvatar.endsWith("avatar.png")) {
-          fs.remove(path.join(__dirname, `${FILE_UPLOAD_PATH_PREFIX}${removeAvatar}`));
+        if (oldAvatar && !oldAvatar.endsWith("/image/avatar.png")) {
+          fs.remove(`${ASSET_DIR}${oldAvatar.replace(ASSET_PREFIX, "")}`);
         }
       } else {
         throw responseError({ code: 11010 });

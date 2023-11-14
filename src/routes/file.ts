@@ -65,6 +65,10 @@ router.get("/directory", auth(0), fileController.getDirectorys);
  *           schema:
  *             type: object
  *             properties:
+ *               keyword:
+ *                 type: string
+ *                 description: 文件名
+ *                 default: ”“
  *               directory:
  *                 type: string
  *                 description: 文件目录
