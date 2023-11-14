@@ -75,8 +75,6 @@ export function UploadError(code: number): string {
       return "文件不存在";
     case 12014:
       return "删除权限不足";
-    case 12015:
-      return "OSS异常";
     case 12016:
       return "文件转换异常";
     case 12017:

@@ -4,7 +4,6 @@ import path from "path";
 import got from "got";
 import { generateId } from "@/utils/api";
 import { UPLOAD_PREFIX } from "@/config/env";
-import oss from "@/utils/oss";
 import { DirectoriesList, FileStats } from "./type";
 import { URL } from "@/config/env";
 
@@ -63,11 +62,7 @@ export function saveFile(src: string, module: number) {
 
       // 文件最终地址
       const result = `${fileType}${moduleFormat(fileType, module)}/${fileName}`;
-      // 上传到oss
-      oss.put(
-        `${UPLOAD_PREFIX}${result}`,
-        path.join(__dirname, `${FILE_UPLOAD_PATH_PREFIX}${result}`)
-      );
+
       // 返回文件地址
       resolve(result);
     } catch (err) {

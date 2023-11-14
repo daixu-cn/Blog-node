@@ -8,7 +8,6 @@ import { UPLOAD_PREFIX, FILE_PREFIX } from "@/config/env";
 import FileType from "file-type";
 import crypto from "crypto";
 import { moduleFormat } from "@/utils/file";
-import oss from "@/utils/oss";
 import sharp from "sharp";
 
 // 上传文件路径前缀
@@ -156,15 +155,9 @@ export async function handleUploadFile(ctx: Context, file: File): Promise<string
     if (chunk) {
       // 校验是否为最后一个分片
       const filePath = await chunkMerge(ctx, file);
-      oss.put(
-        `${UPLOAD_PREFIX}${filePath}`,
-        path.join(__dirname, `${FILE_UPLOAD_PATH_PREFIX}/${filePath}`)
-      );
-
       return `${FILE_PREFIX}${filePath}`;
     }
 
-    oss.put(`${UPLOAD_PREFIX}${filePath}/${file.newFilename}`, `${destPath}/${file.newFilename}`);
     return `${FILE_PREFIX}${filePath}/${file.newFilename}`;
   } catch (error: any) {
     fs.remove(file.filepath);

@@ -16,7 +16,6 @@ import { sendMail } from "@/utils/nodemailer";
 import { UPLOAD_PREFIX, FILE_PREFIX } from "@/config/env";
 import fs from "fs-extra";
 import path from "path";
-import oss from "@/utils/oss";
 
 import User from "@/models/user";
 import Article from "@/models/article";
@@ -390,10 +389,8 @@ export default {
         }
 
         fs.remove(path.join(__dirname, `${FILE_UPLOAD_PATH_PREFIX}${article?.dataValues.poster}`));
-        oss.destroy(`${UPLOAD_PREFIX}${article?.dataValues.poster}`);
 
         fs.remove(path.join(__dirname, `${FILE_UPLOAD_PATH_PREFIX}${article?.dataValues.video}`));
-        oss.destroy(`${UPLOAD_PREFIX}${article?.dataValues.video}`);
       } else {
         throw responseError({ code: 13007 });
       }

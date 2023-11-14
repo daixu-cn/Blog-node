@@ -28,10 +28,5 @@ declare namespace NodeJS {
     EMAIL_PORT: string;
     EMAIL_USER: string;
     EMAIL_PASSWORD: string;
-
-    ALIOSS_REGION: string;
-    ALIOSS_ACCESSKEYID: string;
-    ALIOSS_ACCESSKEYSECRET: string;
-    ALIOSS_BUCKET: string;
   }
 }

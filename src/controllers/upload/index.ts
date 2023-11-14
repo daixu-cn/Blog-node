@@ -6,7 +6,6 @@ import fs from "fs-extra";
 import koaBody, { ExtendedFormidableOptions } from "koa-body";
 import path from "path";
 import { UPLOAD_PREFIX, FILE_PREFIX } from "@/config/env";
-import oss from "@/utils/oss";
 import {
   FILE_UPLOAD_PATH_PREFIX,
   handleUploadFile,
@@ -77,7 +76,6 @@ export default {
           const fullPath = path.join(__dirname, `${FILE_UPLOAD_PATH_PREFIX}/${filePath}`);
 
           if (fs.existsSync(fullPath)) {
-            oss.destroy(`${UPLOAD_PREFIX}${filePath}`);
             fs.remove(fullPath);
           }
         }
@@ -90,7 +88,7 @@ export default {
       });
     }
   },
-  async destroy(ctx: Context) {
+  destroy(ctx: Context) {
     try {
       const _path: string = ctx.params?.path;
       const filePath = _path?.replace(FILE_PREFIX, "");
@@ -98,7 +96,6 @@ export default {
 
       if (_path?.includes(UPLOAD_PREFIX)) {
         if (fs.existsSync(fullPath)) {
-          await oss.destroy(`${UPLOAD_PREFIX}${filePath}`);
           fs.remove(fullPath);
           ctx.body = response({ message: "操作成功" });
         } else {

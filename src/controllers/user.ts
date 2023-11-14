@@ -12,7 +12,6 @@ import User from "@/models/user";
 import { UPLOAD_PREFIX, FILE_PREFIX, _JWT, _SECRET } from "@/config/env";
 import fs from "fs-extra";
 import path from "path";
-import oss from "@/utils/oss";
 
 const FILE_UPLOAD_PATH_PREFIX = `../../public/${UPLOAD_PREFIX}`;
 
@@ -419,7 +418,6 @@ export default {
 
         if (removeAvatar && !removeAvatar.endsWith("avatar.png")) {
           fs.remove(path.join(__dirname, `${FILE_UPLOAD_PATH_PREFIX}${removeAvatar}`));
-          oss.destroy(`${UPLOAD_PREFIX}${removeAvatar}`);
         }
       } else {
         throw responseError({ code: 11010 });

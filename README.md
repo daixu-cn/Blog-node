@@ -95,7 +95,6 @@ BLOG-NODE
 │   │   ├── jsonwebtoken.ts #token生成/校验
 │   │   ├── log4.ts         #日志输出
 │   │   ├── nodemailer.ts   #发送邮件
-│   │   ├── oss.ts          #阿里OSS封装
 │   │   ├── redis.ts        #redis封装
 │   │   └── snowflake.ts    #雪花算法类
 │   ├── .DS_Store
@@ -175,31 +174,11 @@ EMAIL_PORT=465
 EMAIL_USER=xxxxxx
 # 邮件服务-阿里云企业邮箱密码
 EMAIL_PASSWORD=xxxxxx
-
-# 阿里云OSS-区域
-ALIOSS_REGION=xxxxxx
-# 阿里云OSS-AccessKey ID
-ALIOSS_ACCESSKEYID=xxxxxx
-# 阿里云OSS-Access Key Secret
-ALIOSS_ACCESSKEYSECRET=xxxxxx
-# 阿里云OSS-存储空间名称
-ALIOSS_BUCKET=xxxxxx
 ```
 
 > 不论是生产环境的还是开发环境的你都可以复制上面的模版然后进行对应的修改，如果你相关`mysql`、`redis`环境都是默认的话你只需要修改模版中`xxxxxx`的部分就行了，其他的可以保持不变。
 >
 > 另外需要改的地方是生产环境的配置文件（`.env.production`），里面的`SCHEME`、`PORT`、`DOMAIN`需要改成你自己的域名和端口，否则最后部署之后公网无法访问的。
-
-### 阿里云OSS
-阿里云OSS在该项目中作用时备份你的图片、视频之类数据的，如果你不想备份那么就需要把阿里云相关代码都改删了就可以，建议你还是开一个阿里云OSS的账号吧，往里面充个十块钱能玩个好几年，并且数据也不会丢失。
-
-你也可以改成其他云的OSS服务，什么七牛云，还有腾讯、百度之类的，不过你要改成其他的那么代码就要修改了，这个得你自己去看人家的相关文档进行修改，替换掉阿里云。
-
-进入阿里云点击头像，然后选择 `AccessKey管理` ，之后就可以查看密钥了。
-
-![](https://api.daixu.cn:443/upload/image/article/215075523817267200.png)
-
-![](https://api.daixu.cn:443/upload/image/article/215075524941340672.png)
 
 ### 第三方授权登录
 这个属实没啥好的办法了，如果你想搞的话你就需要去`QQ`、`GitHub`、`Google`三个平台的开发后台单独配置应用，然后把获取到的密钥值修改到前端和后端的环境变量文件中。

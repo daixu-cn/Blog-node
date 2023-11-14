@@ -80,11 +80,3 @@ export const _EMAIL = {
     }
   }
 };
-
-// 阿里云OSS配置
-export const _ALIOSS = {
-  region: process.env.ALIOSS_REGION,
-  accessKeyId: process.env.ALIOSS_ACCESSKEYID,
-  accessKeySecret: process.env.ALIOSS_ACCESSKEYSECRET,
-  bucket: process.env.ALIOSS_BUCKET
-};
