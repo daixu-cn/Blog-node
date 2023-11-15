@@ -10,6 +10,7 @@ import responseError from "@/config/response/error";
 import sequelize from "@/config/sequelize";
 import { Transaction, FindAttributeOptions, Includeable } from "sequelize";
 import { sendMail } from "@/utils/nodemailer";
+import { deleteLocalAsset } from "@/utils/file";
 
 import Article from "@/models/article";
 import Comment from "@/models/comment";
@@ -86,11 +87,11 @@ export function getReplies(params: { commentId?: string; page?: number; pageSize
  * @param {Transaction} transaction 事务对象
  * @param {string} replyId 需要删除的回复ID
  * @param {string} userId 操作的用户ID
- * @return {}
  */
 export function recursiveDeletionReply(transaction: Transaction, replyId: string, userId?: string) {
   return new Promise<void>(async (resolve, reject) => {
     try {
+      const reply = (await Reply.findByPk(replyId))?.toJSON();
       const rows = await Reply.destroy({
         where: userId ? { userId, replyId } : { replyId },
         transaction
@@ -98,6 +99,7 @@ export function recursiveDeletionReply(transaction: Transaction, replyId: string
       if (!rows && userId) {
         reject(`${replyId}回复删除失败`);
       }
+      deleteLocalAsset(reply.content);
 
       const replyList = await Reply.findAll({ where: { parentId: replyId } });
       for (const item of replyList) {

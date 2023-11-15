@@ -88,3 +88,26 @@ export function getFiles(dirPath: string): FileStats[] {
 
   return result;
 }
+
+/**
+ * @description 删除字符串中包含的本地资源
+ * @param {string} content 内容
+ */
+export function deleteLocalAsset(content: string) {
+  return new Promise<void>((resolve, reject) => {
+    try {
+      const reg = new RegExp(`(?<=\\]\\()(${ASSET_PREFIX}.+?)(?=\\))`, "g");
+      const links = content.match(reg) ?? [];
+
+      for (const link of links) {
+        const path = `${ASSET_DIR}${link.replace(ASSET_PREFIX, "")}`;
+        if (fs.existsSync(path) && fs.statSync(path).isFile()) {
+          fs.remove(path);
+          resolve();
+        }
+      }
+    } catch (err) {
+      reject(err);
+    }
+  });
+}

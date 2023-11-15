@@ -15,6 +15,7 @@ import dayjs from "dayjs";
 import { sendMail } from "@/utils/nodemailer";
 import { ASSET_DIR, ASSET_PREFIX } from "@/config/env";
 import fs from "fs-extra";
+import { deleteLocalAsset } from "@/utils/file";
 
 import User from "@/models/user";
 import Article from "@/models/article";
@@ -373,7 +374,7 @@ export default {
     try {
       const { articleId, userId } = ctx.params;
 
-      const article = await Article.findByPk(articleId);
+      const article = (await Article.findByPk(articleId))?.toJSON();
       const rows = await Article.destroy({
         where: { articleId, userId },
         transaction
@@ -385,8 +386,10 @@ export default {
           await recursiveDeletionComment(transaction, item?.dataValues.commentId);
         }
 
-        fs.remove(`${ASSET_DIR}${article?.dataValues.poster}`);
-        fs.remove(`${ASSET_DIR}${article?.dataValues.video}`);
+        // 删除文章内容、封面、视频的本地文件
+        fs.remove(`${ASSET_DIR}${article.poster}`);
+        fs.remove(`${ASSET_DIR}${article.video}`);
+        deleteLocalAsset(article.content);
       } else {
         throw responseError({ code: 13007 });
       }
