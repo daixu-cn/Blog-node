@@ -119,11 +119,14 @@ export default {
       const { directorie = "/", keyword = "", page = 1, pageSize = 10 } = ctx.params;
 
       const files = getFiles(`${ASSET_DIR}${directorie}`);
+      // 需要排除的文件
+      const excludeFiles = [".DS_Store"];
+
       ctx.body = response({
         data: {
           total: files.length,
           list: files
-            .filter(file => file.name.includes(keyword))
+            .filter(file => file.name.includes(keyword) && !excludeFiles.includes(file.name))
             .slice((page - 1) * pageSize, page * pageSize)
         },
         message: "查询成功"
