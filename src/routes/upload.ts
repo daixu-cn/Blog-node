@@ -103,7 +103,7 @@ router.put("/file", auth(0), uploadController.koaBody(), uploadController.upload
  *                   type: string
  *                   description: 返回信息
  */
-router.delete("/file", auth(0), uploadController.destroy);
+router.delete("/file", auth(1), uploadController.destroy);
 
 /**
  * @swagger
