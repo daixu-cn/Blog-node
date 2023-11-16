@@ -7,6 +7,8 @@
 import Router from "koa-router";
 const router = new Router();
 import auth from "@/middlewares/auth";
+import koaBody from "@/middlewares/koaBody";
+import params from "@/middlewares/params";
 
 import uploadController from "@/controllers/upload";
 
@@ -70,7 +72,7 @@ router.prefix("/upload");
  *                   description: 根据上传数量返回文件地址或者数组（如果是分片上传，之后最后一截上传完之后才会返回正确路径）
  *                   example: "https://daixu.cn/162757520497303552.png"
  */
-router.put("/file", auth(0), uploadController.koaBody(), uploadController.upload);
+router.put("/file", auth(0), koaBody(), params(), uploadController.upload);
 
 /**
  * @swagger
@@ -149,5 +151,5 @@ router.delete("/file", auth(1), uploadController.destroy);
  *                   description: 根据上传数量返回文件地址或者数组
  *                   example: "data:image/jpeg;base64,iVBORw0KGg..."
  */
-router.post("/image/to/base64", uploadController.koaBody(), uploadController.imageToBase64);
+router.post("/image/to/base64", koaBody(), params(), uploadController.imageToBase64);
 export default router;

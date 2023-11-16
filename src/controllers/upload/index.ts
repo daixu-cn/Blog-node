@@ -1,47 +1,14 @@
-import { Context, Middleware } from "koa";
+import { Context } from "koa";
 import response from "@/config/response";
 import responseError from "@/config/response/error";
-import { generateId } from "@/utils/api";
 import fs from "fs-extra";
-import koaBody, { ExtendedFormidableOptions } from "koa-body";
 import { ASSET_DIR, ASSET_PREFIX } from "@/config/env";
 import { handleUploadFile, fileToBase64 } from "@/controllers/upload/file-process";
 
 export default {
-  /**
-   * @description 上传文件
-   * @param {number} maxFileSize 默认单个文件最大为2M
-   * @param {ExtendedFormidableOptions} formidable 配置项
-   * @returns {Middleware} koaBody
-   */
-  koaBody(
-    maxFileSize: number = 1024 * 1024 * 2,
-    formidable?: ExtendedFormidableOptions
-  ): Middleware {
-    return koaBody({
-      multipart: true,
-      formidable: {
-        maxFileSize,
-        uploadDir: ASSET_DIR,
-        keepExtensions: true,
-        // 重写文件名
-        filename(name, ext) {
-          return `${generateId()}${ext}`;
-        },
-        onFileBegin(name, file) {
-          // 判断一下上传的路径是否存在，避免报错
-          fs.ensureDirSync(ASSET_DIR);
-        },
-        ...formidable
-      },
-      onError(error) {
-        throw responseError({ code: 12003, message: error?.message });
-      }
-    });
-  },
   async upload(ctx: Context) {
     try {
-      const { replaceFile } = ctx.request.body;
+      const { replaceFile } = ctx.params;
 
       const files = ctx.request.files;
       // 如果文件不存在

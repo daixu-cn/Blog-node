@@ -13,10 +13,9 @@ import sharp from "sharp";
  * @description 分片文件校验
  * @param {Context} ctx 上下文对象
  * @param {File} file 需要校验的文件
- * @return {}
  */
 export function chunkFileVerification(ctx: Context, file: File) {
-  const { name, chunk, chunks, hash } = ctx.request.body;
+  const { name, chunk, chunks, hash } = ctx.params;
   if (!name || !chunks || !hash) {
     throw responseError({ code: 12008 });
   }
@@ -42,11 +41,11 @@ export function chunkFileVerification(ctx: Context, file: File) {
  * @description 分片文件合并
  * @param {Context} ctx 上下文对象
  * @param {File} file 分片文件
- * @return {}
+ * @return {Promise<string>} 文件地址
  */
 export function chunkMerge(ctx: Context, file: File) {
   return new Promise<string>(async (resolve, reject) => {
-    const { name, chunk, chunks } = ctx.request.body;
+    const { name, chunk, chunks } = ctx.params;
     const fileName = decodeURIComponent(name);
     // 获取分片文件目录和文件路径
     const chunkDir = `${ASSET_DIR}/temp/${fileName}`;
@@ -115,7 +114,7 @@ export function chunkMerge(ctx: Context, file: File) {
  */
 export async function handleUploadFile(ctx: Context, file: File): Promise<string> {
   try {
-    const { name, chunk, hash } = ctx.request.body;
+    const { name, chunk, hash } = ctx.params;
 
     // 文件类型
     const fileType = file.mimetype?.split("/")[0];

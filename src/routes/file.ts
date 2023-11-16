@@ -7,8 +7,9 @@
 import Router from "koa-router";
 const router = new Router();
 import auth from "@/middlewares/auth";
+import koaBody from "@/middlewares/koaBody";
+import params from "@/middlewares/params";
 
-import uploadController from "@/controllers/upload";
 import fileController from "@/controllers/file";
 
 router.prefix("/file");
@@ -153,9 +154,10 @@ router.post("/list", auth(0), fileController.list);
  */
 router.post(
   "/xlsx/parse",
-  uploadController.koaBody(1024 * 1024 * 5, {
+  koaBody(1024 * 1024 * 5, {
     maxFiles: 1
   }),
+  params(),
   fileController.xlsx_parse
 );
 
