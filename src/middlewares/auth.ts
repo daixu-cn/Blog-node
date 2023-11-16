@@ -34,7 +34,7 @@ export default function auth(role = 1): Middleware {
             };
           }
 
-          Object.assign(ctx.params ?? {}, { userId, role: userRole });
+          ctx.params = { ...ctx.params, userId, role: userRole };
           redis.expire(authorization, 60 * 60 * 24 * 7);
           await next();
         } else {

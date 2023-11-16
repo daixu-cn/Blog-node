@@ -122,11 +122,11 @@ export function getProcessList() {
                 status: item.pm2_env?.status,
                 // 进程开始运行的时间（ms）
                 pm_uptime: item.pm2_env?.pm_uptime,
-                // 应用版本
+                // @ts-ignore 应用版本
                 version: item.pm2_env?.version,
-                // PM2版本
+                // @ts-ignore PM2版本
                 pm2_version: item.pm2_env?._pm2_version,
-                // Node版本
+                // @ts-ignore Node版本
                 node_version: item.pm2_env?.node_version,
                 // 进程重启次数
                 restart_time: item.pm2_env?.restart_time
@@ -141,4 +141,21 @@ export function getProcessList() {
       pm2.disconnect();
     }
   });
+}
+
+/**
+ * @description 截断日志
+ * @param {any} data 日志数据
+ * @param {number} MAX_LOG_LENGTH 最大日志长度
+ * @return {string} 截断后的日志
+ */
+export function truncateData(data: any, MAX_LOG_LENGTH = 1000): string {
+  if (data) {
+    const logs = typeof data !== "string" ? JSON.stringify(data) : data;
+    if (logs.length > MAX_LOG_LENGTH) {
+      return logs.substring(0, MAX_LOG_LENGTH) + "... (truncated)";
+    }
+    return logs;
+  }
+  return "";
 }

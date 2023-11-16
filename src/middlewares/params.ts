@@ -8,12 +8,7 @@ import { Context, Next } from "koa";
 
 export default function () {
   return async function (ctx: Context, next: Next) {
-    const method = ctx.method.toLocaleLowerCase();
-    if (method === "post" || method === "patch" || method === "put") {
-      ctx.params = ctx.request.body;
-    } else if (method === "get" || method === "delete") {
-      ctx.params = ctx.query;
-    }
+    ctx.params = { ...ctx.request.body, ...ctx.query, ...ctx.params };
     await next();
   };
 }

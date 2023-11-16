@@ -7,6 +7,7 @@
 import { Context, Next } from "koa";
 import { httpLogger } from "@/utils/log4";
 import geoip from "geoip-lite";
+import { truncateData } from "@/utils/api";
 
 /**
  * @description 生成路由日志
@@ -45,7 +46,7 @@ function generateLogs(ctx: Context, startTime: number, Extras: string[] = []) {
     `Response: ${JSON.stringify({
       status: ctx.response.status,
       message: ctx.response.message,
-      body: { code: body?.code, message: body?.message }
+      body: { ...body, data: truncateData(body?.data) }
     })}`,
     ...Extras,
     "\n"

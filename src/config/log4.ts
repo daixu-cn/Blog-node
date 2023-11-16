@@ -4,9 +4,9 @@
  * @Date: 2023-04-22 20:31:48
  */
 
+import { ASSET_DIR } from "@/config/env";
 import { Configuration } from "log4js";
 import dayjs from "dayjs";
-import path from "path";
 
 // 默认级别：ALL < TRACE < DEBUG < INFO < WARN < ERROR < FATAL < MARK < OFF
 
@@ -22,6 +22,11 @@ const GeneralConfiguration = {
 };
 
 function createConfigure(): Configuration {
+  // 日志文件路径
+  const filePath = `${dayjs().year()}/${dayjs().format("YYYY-MM")}/${dayjs().format(
+    "YYYY-MM-DD"
+  )}/${dayjs().format("YYYY-MM-DD")}.log`;
+
   return {
     appenders: {
       stdout: {
@@ -32,30 +37,17 @@ function createConfigure(): Configuration {
         // logger 名称
         category: "consoleLogger",
         // 日志输出位置
-        filename: path.join(
-          "logs/",
-          `console/${dayjs().year()}/${dayjs().format("YYYY-MM")}/${dayjs().format(
-            "YYYY-MM-DD"
-          )}.log`
-        )
+        filename: `${ASSET_DIR}/logs/console/${filePath}`
       },
       error: {
         ...GeneralConfiguration,
         category: "errorLogger",
-        filename: path.join(
-          "logs/",
-          `error/${dayjs().year()}/${dayjs().format("YYYY-MM")}/${dayjs().format("YYYY-MM-DD")}.log`
-        )
+        filename: `${ASSET_DIR}/logs/error/${filePath}`
       },
       http: {
         ...GeneralConfiguration,
         category: "httpLogger",
-        filename: path.join(
-          "logs/",
-          `http/${dayjs().year()}/${dayjs().format("YYYY-MM")}/${dayjs().format(
-            "YYYY-MM-DD"
-          )}/${dayjs().format("YYYY-MM-DD")}.log`
-        )
+        filename: `${ASSET_DIR}/logs/http/${filePath}`
       }
     },
     categories: {
