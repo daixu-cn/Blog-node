@@ -7,7 +7,6 @@
 import { Context } from "koa";
 import response from "@/config/response";
 import responseError from "@/config/response/error";
-import path from "path";
 import { getDirectories, getFiles } from "@/utils/file";
 import xlsx from "node-xlsx";
 import fs from "fs-extra";
@@ -55,6 +54,12 @@ export default {
    *         path:
    *           type: string
    *           description: 文件访问地址
+   *         url:
+   *           type: string
+   *           description: 文件地址
+   *         directory:
+   *           type: string
+   *           description: 是否为文件夹
    *         dev:
    *           type: integer
    *           description: 设备 ID

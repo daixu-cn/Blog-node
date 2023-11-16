@@ -1,10 +1,9 @@
 import fs from "fs-extra";
 import FileType from "file-type";
-import path from "path";
 import got from "got";
 import { generateId } from "@/utils/api";
 import { ASSET_DIR } from "@/config/env";
-import { DirectoriesList, FileStats } from "./type";
+import { DirectoriesList, Files } from "./type";
 import { ASSET_PREFIX } from "@/config/env";
 
 /**
@@ -56,7 +55,7 @@ export function getDirectories(dirPath: string): DirectoriesList[] {
 
   for (const name of files) {
     // 判断是否是文件夹
-    if (fs.statSync(path.join(dirPath, name)).isDirectory()) {
+    if (fs.statSync(`${dirPath}/${name}`).isDirectory()) {
       result.push({ name, subDirectories: getDirectories(`${dirPath}/${name}`) });
     }
   }
@@ -67,26 +66,36 @@ export function getDirectories(dirPath: string): DirectoriesList[] {
 /**
  * @description 获取指令文件夹下的所有文件
  * @param {string} dirPath 文件夹路径
- * @return {FileStats[]} 返回文件列表
+ * @return {Files[]} 返回文件/文件夹列表
  */
-export function getFiles(dirPath: string): FileStats[] {
-  // 初始化文件和文件夹列表
-  const result: FileStats[] = [];
-  // 获取指定文件夹下的所有文件
+export function getFiles(dirPath: string): Files[] {
+  const result: Files[] = [];
+  // 文件夹下的所有文件/文件夹
   const files = fs.readdirSync(dirPath);
 
   for (const name of files) {
-    const stat = fs.statSync(path.join(dirPath, name));
-    if (stat.isFile()) {
-      result.push({
-        ...stat,
-        name,
-        path: `${ASSET_PREFIX}${dirPath.split("/Blog")[1]}/${name}`
-      });
-    }
+    const stat = fs.statSync(`${dirPath}/${name}`);
+    const path = `/${dirPath.split("/Blog")?.[1]}/${name}`.replace(/\/+/g, "/");
+
+    result.push({
+      ...stat,
+      name,
+      path: path.replace(/\\/g, "/"),
+      url: `${ASSET_PREFIX}${path}`,
+      directory: stat.isDirectory()
+    });
   }
 
-  return result;
+  // 按照文件夹优先排序
+  return result.sort((a, b) => {
+    if (a.directory && !b.directory) {
+      return -1;
+    }
+    if (!a.directory && b.directory) {
+      return 1;
+    }
+    return 0;
+  });
 }
 
 /**

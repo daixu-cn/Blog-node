@@ -4,8 +4,9 @@ export interface DirectoriesList {
   name: string;
   subDirectories: DirectoriesList[];
 }
-
-export interface FileStats extends fs.Stats {
+export interface Files extends fs.Stats {
+  directory: boolean;
   name: string;
+  url: string;
   path: string;
 }
