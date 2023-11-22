@@ -32,8 +32,9 @@ export default {
         ctx.body = response({ data });
       } else {
         const data = await handleUploadFile(ctx, files.file);
+        const ext = data.split(".").pop();
 
-        if (replaceFile) {
+        if (replaceFile && replaceFile.endsWith(`.${ext}`)) {
           const oldPath = replaceFile.replace(ASSET_PREFIX, "");
           fs.removeSync(`${ASSET_DIR}${oldPath}`);
           fs.renameSync(`${ASSET_DIR}${data.replace(ASSET_PREFIX, "")}`, `${ASSET_DIR}${oldPath}`);

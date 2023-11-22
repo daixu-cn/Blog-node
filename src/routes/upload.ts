@@ -38,7 +38,7 @@ router.prefix("/upload");
  *                   format: binary
  *               replaceFile:
  *                 type: string
- *                 description: 替换文件：传入文件路径或者完整地址，传入该属性则只能传入一个文件
+ *                 description: 替换文件：传入文件路径或者完整地址，传入该属性则只能传入一个文件（且文件后缀必须与替换前的文件保持一致）
  *               name:
  *                 type: string
  *                 description: 分片文件(必传)：文件标识（确保同一个文件的标识一致）
