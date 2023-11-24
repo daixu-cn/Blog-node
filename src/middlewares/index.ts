@@ -30,12 +30,12 @@ export default compose([
   ip(),
   log4(),
   helmet(),
-  ratelimit(),
   koaBody(),
   params(),
   koaStatic("public/", {
     maxAge: 1000 * 60 * 60 * 24 * 30
   }),
   auth(-1),
+  ratelimit(),
   routes()
 ]);

@@ -6,7 +6,6 @@
 
 import { RateLimit } from "koa2-ratelimit";
 import redis from "@/utils/redis";
-
 export default function () {
   return RateLimit.middleware({
     interval: { sec: 1 },
@@ -16,6 +15,14 @@ export default function () {
     keyGenerator(ctx) {
       return new Promise<string>(resolve => {
         resolve(ctx.clientIp);
+      });
+    },
+    async skip(ctx) {
+      return new Promise<boolean>(resolve => {
+        if (ctx.params?.role === 0) {
+          resolve(true);
+        }
+        resolve(false);
       });
     },
     onLimitReached(ctx) {
