@@ -220,6 +220,26 @@ export function FileError(code: number): string {
   }
 }
 
+/**
+ * @description 文件模块错误码：19001--19999
+ * @param {number} code 状态码
+ * @return {string} 错误信息
+ */
+export function LemonError(code: number): string {
+  switch (code) {
+    case 19001:
+      return "创建失败";
+    case 19002:
+      return "柠檬记录列表查询失败";
+    case 19003:
+      return "编辑失败";
+    case 19004:
+      return "删除失败";
+    default:
+      return "柠檬模块异常";
+  }
+}
+
 interface Params {
   code?: number;
   data?: any;
@@ -235,7 +255,9 @@ export default function errorFormat(params: Params) {
     return response({ code, message, data });
   }
 
-  if (code > 18000) {
+  if (code > 19000) {
+    return response({ code, message: LemonError(code), data });
+  } else if (code > 18000) {
     return response({ code, message: FileError(code), data });
   } else if (code > 17000) {
     return response({ code, message: UpdateError(code), data });

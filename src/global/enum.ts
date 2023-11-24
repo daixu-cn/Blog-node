@@ -22,3 +22,22 @@ export enum category {
   LEISURE = "咖啡屋",
   JOURNAL = "生活碎片"
 }
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     LemonMediaType:
+ *       type: string
+ *       enum: ['IMAGE', 'VIDEO']
+ *       description: |
+ *         文章类别:
+ *         - IMAGE
+ *           图片
+ *         - VIDEO
+ *           视频
+ */
+export enum lemon_media_type {
+  IMAGE = "图片",
+  VIDEO = "视频"
+}

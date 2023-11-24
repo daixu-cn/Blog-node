@@ -11,7 +11,7 @@
  Target Server Version : 80033 (8.0.33)
  File Encoding         : 65001
 
- Date: 08/09/2023 15:13:45
+ Date: 19/11/2023 16:39:36
 */
 
 SET NAMES utf8mb4;
@@ -62,6 +62,27 @@ CREATE TABLE `comment` (
 
 -- ----------------------------
 -- Records of comment
+-- ----------------------------
+BEGIN;
+COMMIT;
+
+-- ----------------------------
+-- Table structure for lemon
+-- ----------------------------
+DROP TABLE IF EXISTS `lemon`;
+CREATE TABLE `lemon` (
+  `lemon_id` bigint unsigned NOT NULL COMMENT 'ID',
+  `description` text COLLATE utf8mb4_unicode_ci COMMENT '描述',
+  `path` char(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '文件地址',
+  `media_type` enum('IMAGE','VIDEO') COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '媒体类型："IMAGE":"image","VIDEO":"video"',
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`lemon_id`),
+  UNIQUE KEY `lemon_id` (`lemon_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='柠檬生活记录表';
+
+-- ----------------------------
+-- Records of lemon
 -- ----------------------------
 BEGIN;
 COMMIT;
