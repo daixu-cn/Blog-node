@@ -9,7 +9,7 @@ import { ASSET_DIR, URL } from "@/config/env";
 export default function (root = `${ASSET_DIR}/`) {
   return koaStatic(root, {
     // 浏览器缓存：30天
-    // maxAge: 1000 * 60 * 60 * 24 * 30,
+    maxAge: 1000 * 60 * 60 * 24 * 30,
     setHeaders: res => {
       res.setHeader("Author", URL);
     }
