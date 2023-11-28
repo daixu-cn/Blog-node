@@ -14,6 +14,7 @@ dotenv.config({
 });
 
 import compose from "koa-compose";
+import compress from "koa-compress";
 import ip from "@/middlewares/ip";
 import params from "@/middlewares/params";
 import log4 from "@/middlewares/log4";
@@ -21,7 +22,7 @@ import cors from "@/middlewares/cors";
 import helmet from "koa-helmet";
 import ratelimit from "@/middlewares/ratelimit";
 import koaBody from "koa-body";
-import koaStatic from "koa-static";
+import koaStatic from "@/middlewares/koaStatic";
 import auth from "@/middlewares/auth";
 import routes from "@/routes";
 
@@ -32,9 +33,8 @@ export default compose([
   helmet(),
   koaBody(),
   params(),
-  koaStatic("public/", {
-    maxAge: 1000 * 60 * 60 * 24 * 30
-  }),
+  compress(),
+  koaStatic(),
   auth(-1),
   ratelimit(),
   routes()
