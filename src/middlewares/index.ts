@@ -24,6 +24,7 @@ import ratelimit from "@/middlewares/ratelimit";
 import koaBody from "koa-body";
 import koaStatic from "@/middlewares/koaStatic";
 import auth from "@/middlewares/auth";
+import watermark from "@/middlewares/watermark";
 import routes from "@/routes";
 
 export default compose([
@@ -34,6 +35,7 @@ export default compose([
   koaBody(),
   params(),
   compress(),
+  watermark(),
   koaStatic(),
   auth(-1),
   ratelimit(),
