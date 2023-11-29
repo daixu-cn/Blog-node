@@ -6,15 +6,14 @@
 
 import cors from "koa2-cors";
 import { Options } from "koa2-cors";
+import { TRUSTED_DOMAINS } from "@/config/env";
 
 const config: Options = {
   origin: function (ctx) {
     const url = (ctx.request.header.origin ?? ctx.request.header.referer?.slice(0, -1)) || "";
 
-    // 允许访问的地址
-    const whiteList = ["127.0.0.1", "localhost", "daixu.cn", "thund.com"];
     if (url) {
-      return whiteList.filter(item => {
+      return TRUSTED_DOMAINS.filter(item => {
         return url.includes(item);
       }).length
         ? url
