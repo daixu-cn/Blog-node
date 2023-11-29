@@ -24,6 +24,7 @@
 .env.production.local
 .env.development
 .env.production
+pm2.config.js
 
 npm-debug.log*
 yarn-debug.log*
