@@ -28,8 +28,10 @@ export const ASSET_DIR = process.env.ASSET_DIR;
 // 资源获取路径前缀
 export const ASSET_PREFIX = process.env.ASSET_PREFIX;
 
-// 跨域、图片水印等版块开放白名单
+// 受信任的域名（用于跨域等版块使用）
 export const TRUSTED_DOMAINS = ["127.0.0.1", "localhost", "daixu.cn", "thund.com"];
+// 版权描述
+export const COPYRIGHT = `©️ ${new Date().getFullYear()} DAIXU.CN 版权所有。未经授权禁止复制或使用。`;
 
 // mysql配置
 export const _MYSQL = {
