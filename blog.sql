@@ -11,7 +11,7 @@
  Target Server Version : 80033 (8.0.33)
  File Encoding         : 65001
 
- Date: 19/11/2023 16:39:36
+ Date: 01/12/2023 16:07:54
 */
 
 SET NAMES utf8mb4;
@@ -26,12 +26,13 @@ CREATE TABLE `article` (
   `title` char(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '文章标题',
   `description` text COLLATE utf8mb4_unicode_ci COMMENT '文章描述',
   `category` enum('CODE','TUTORIAL','LEISURE','JOURNAL') COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '文章类别："CODE":"实验室","TUTORIAL":"探索站","LEISURE":"咖啡屋","JOURNAL":"生活碎片"',
-  `poster` char(255) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '预览图片',
+  `poster` char(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '预览图片',
   `video` char(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '视频',
   `content` longtext COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '文章正文(Markdown)',
   `views` int NOT NULL DEFAULT '0' COMMENT '文章阅读量',
   `disable_comment` tinyint(1) NOT NULL DEFAULT '0' COMMENT '禁止评论(0:允许评论、1:禁止评论)',
   `is_private` tinyint(1) NOT NULL DEFAULT '0' COMMENT '私有文章(0:公开、1:私有)',
+  `unlock_at` datetime NOT NULL DEFAULT '1970-01-01 00:00:00' COMMENT '解锁时间',
   `user_id` bigint unsigned NOT NULL COMMENT '用户ID',
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
@@ -72,9 +73,9 @@ COMMIT;
 DROP TABLE IF EXISTS `lemon`;
 CREATE TABLE `lemon` (
   `lemon_id` bigint unsigned NOT NULL COMMENT 'ID',
-  `description` text COLLATE utf8mb4_unicode_ci COMMENT '描述',
+  `description` char(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '描述',
   `path` char(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '文件地址',
-  `media_type` enum('IMAGE','VIDEO') COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '媒体类型："IMAGE":"image","VIDEO":"video"',
+  `media_type` enum('IMAGE','VIDEO') COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '媒体类型："IMAGE":"图片","VIDEO":"视频"',
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
   PRIMARY KEY (`lemon_id`),

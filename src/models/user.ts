@@ -7,7 +7,8 @@
 import { DataTypes } from "sequelize";
 import sequelize from "@/config/sequelize";
 import { generateId } from "@/utils/api";
-import { ASSET_PREFIX } from "@/config/env";
+import { ASSET_DIR, ASSET_PREFIX } from "@/config/env";
+import fs from "fs-extra";
 
 const User = sequelize.define(
   "user",
@@ -53,6 +54,9 @@ const User = sequelize.define(
       defaultValue: "/image/avatar.png",
       get() {
         return `${ASSET_PREFIX}${this.getDataValue("avatar")}`;
+      },
+      set(avatar: string) {
+        this.setDataValue("avatar", avatar ? avatar.replace(ASSET_PREFIX, "") : null);
       }
     },
     qq: {
@@ -94,7 +98,20 @@ const User = sequelize.define(
       }
     }
   },
-  { freezeTableName: true, comment: "用户表", createdAt: "createdAt", updatedAt: "updatedAt" }
+  {
+    freezeTableName: true,
+    comment: "用户表",
+    createdAt: "createdAt",
+    updatedAt: "updatedAt",
+    hooks: {
+      afterUpdate(instance) {
+        const oldAvatar = instance.previous("avatar");
+        if (!oldAvatar.endsWith("/image/avatar.png")) {
+          fs.remove(`${ASSET_DIR}${oldAvatar}`);
+        }
+      }
+    }
+  }
 );
 
 export default User;

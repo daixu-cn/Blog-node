@@ -8,7 +8,6 @@ import { Context } from "koa";
 import response from "@/config/response";
 import responseError from "@/config/response/error";
 import { Op } from "sequelize";
-import sequelize from "@/config/sequelize";
 import { ASSET_DIR, ASSET_PREFIX } from "@/config/env";
 import FileType from "file-type";
 import fs from "fs-extra";
@@ -52,14 +51,13 @@ export default {
       const list = Array.isArray(files.file) ? files.file : [files.file];
 
       for (const file of list) {
-        const data = await handleUploadFile(ctx, file);
+        const path = await handleUploadFile(ctx, file);
+        const result = await FileType.fromFile(`${ASSET_DIR}${path.replace(ASSET_PREFIX, "")}`);
 
-        const assetPath = data.replace(ASSET_PREFIX, "");
-        const fileTypeResult = await FileType.fromFile(`${ASSET_DIR}${assetPath}`);
         await Lemon.create({
           description,
-          path: assetPath,
-          mediaType: fileTypeResult?.mime.split("/")[0]?.toUpperCase()
+          path,
+          mediaType: result?.mime.split("/")[0]?.toUpperCase()
         });
       }
       ctx.body = response({ message: "创建成功" });
@@ -105,13 +103,13 @@ export default {
       const { lemonId, description, path } = ctx.params;
 
       const assetPath = path.replace(ASSET_PREFIX, "");
-      const fileTypeResult = await FileType.fromFile(`${ASSET_DIR}${assetPath}`);
+      const result = await FileType.fromFile(`${ASSET_DIR}${assetPath}`);
 
       const [rows] = await Lemon.update(
         {
           description,
-          mediaType: path ? fileTypeResult?.mime.split("/")[0]?.toUpperCase() : undefined,
-          path: path ? assetPath : undefined
+          mediaType: path ? result?.mime.split("/")[0]?.toUpperCase() : undefined,
+          path: path ?? undefined
         },
         { where: { lemonId } }
       );
@@ -127,26 +125,20 @@ export default {
     }
   },
   async destroy(ctx: Context) {
-    const transaction = await sequelize.transaction();
     try {
       const { lemonId } = ctx.params;
 
-      const lemon = (await Lemon.findByPk(lemonId))?.toJSON();
       const rows = await Lemon.destroy({
         where: { lemonId },
-        transaction
+        individualHooks: true
       });
 
       if (rows) {
-        fs.remove(`${ASSET_DIR}${lemon.path.replace(ASSET_PREFIX, "")}`);
+        ctx.body = response({ message: "删除成功" });
       } else {
         throw responseError({ code: 19004 });
       }
-
-      await transaction.commit();
-      ctx.body = response({ message: "删除成功" });
     } catch (error: any) {
-      await transaction.rollback();
       throw responseError({ code: 19004, message: error.message });
     }
   }

@@ -7,15 +7,11 @@
 import { Context } from "koa";
 import response from "@/config/response";
 import responseError from "@/config/response/error";
-import { Op, FindAttributeOptions, Transaction } from "sequelize";
-import sequelize from "@/config/sequelize";
-import { recursiveDeletionReply } from "@/controllers/reply";
+import { Op, FindAttributeOptions } from "sequelize";
 import { getReplies } from "@/controllers/reply";
 import { sendMail } from "@/utils/nodemailer";
-import { deleteLocalAsset } from "@/utils/file";
 
 import Comment from "@/models/comment";
-import Reply from "@/models/reply";
 import User from "@/models/user";
 import Article from "@/models/article";
 
@@ -26,32 +22,26 @@ const USER_ATTRIBUTES: FindAttributeOptions = ["userId", "userName", "avatar", "
 
 /**
  * @description 递归删除评论记录
- * @param {Transaction} transaction 事务对象
  * @param {string} commentId 需要删除的评论ID
- * @param {string} userId 操作的用户ID
+ * @param {number} userId 操作的用户ID
  */
-export function recursiveDeletionComment(
-  transaction: Transaction,
-  commentId: string,
-  userId?: string
-) {
-  return new Promise<void>(async (resolve, reject) => {
+export function recursiveDeletionComment(commentId: string, userId?: string) {
+  return new Promise<number>(async (resolve, reject) => {
     try {
-      const comment = (await Comment.findByPk(commentId))?.toJSON();
-      const rows = await Comment.destroy({
-        where: userId ? { userId, commentId } : { commentId },
-        transaction
-      });
-      if (!rows) {
-        reject(`${commentId}评论删除失败`);
-      }
-      deleteLocalAsset(comment.content);
+      const result = await Comment.findByPk(commentId);
+      if (result) {
+        const rows = await Comment.destroy({
+          where: userId ? { commentId, userId } : { commentId },
+          individualHooks: true
+        });
 
-      const replyList = await Reply.findAll({ where: { commentId } });
-      for (const item of replyList) {
-        await recursiveDeletionReply(transaction, item?.dataValues.replyId);
+        if (rows) {
+          return resolve(rows);
+        }
+        throw responseError({ message: `${commentId}评论删除失败` });
+      } else {
+        throw responseError({ message: `${commentId}评论不存在` });
       }
-      resolve();
     } catch (err) {
       reject(err);
     }
@@ -217,15 +207,13 @@ export default {
     }
   },
   async destroy(ctx: Context) {
-    const transaction = await sequelize.transaction();
     try {
       const { commentId, userId } = ctx.params;
-      await recursiveDeletionComment(transaction, commentId, userId);
+      await recursiveDeletionComment(commentId, userId);
 
-      await transaction.commit();
       ctx.body = response({ message: "删除成功" });
     } catch (error: any) {
-      await transaction.rollback();
+      console.log(error);
       throw responseError({ code: 14008, message: error?.message });
     }
   }

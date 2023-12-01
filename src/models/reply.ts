@@ -7,6 +7,7 @@
 import { DataTypes } from "sequelize";
 import sequelize from "@/config/sequelize";
 import { generateId } from "@/utils/api";
+import { deleteLocalAsset } from "@/utils/file";
 
 const Reply = sequelize.define(
   "reply",
@@ -68,7 +69,36 @@ const Reply = sequelize.define(
       }
     }
   },
-  { freezeTableName: true, comment: "回复表", createdAt: "createdAt", updatedAt: "updatedAt" }
+  {
+    freezeTableName: true,
+    comment: "回复表",
+    createdAt: "createdAt",
+    updatedAt: "updatedAt",
+    hooks: {
+      afterDestroy({ dataValues: reply }) {
+        return new Promise<void>(async (resolve, reject) => {
+          try {
+            // 删除回复关联内容的本地文件
+            deleteLocalAsset(reply.content);
+
+            // 删除回复下级的记录
+            const replyList = await Reply.findAll({ where: { parentId: reply.replyId } });
+
+            for (const { dataValues } of replyList) {
+              Reply.destroy({
+                where: { replyId: dataValues.replyId },
+                individualHooks: true
+              });
+            }
+
+            resolve();
+          } catch (error) {
+            reject(error);
+          }
+        });
+      }
+    }
+  }
 );
 
 export default Reply;

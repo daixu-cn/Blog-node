@@ -7,12 +7,9 @@
 import { Context } from "koa";
 import response from "@/config/response";
 import responseError from "@/config/response/error";
-import sequelize from "@/config/sequelize";
-import { Transaction, FindAttributeOptions, Includeable } from "sequelize";
+import { FindAttributeOptions, Includeable } from "sequelize";
 import { sendMail } from "@/utils/nodemailer";
-import { deleteLocalAsset } from "@/utils/file";
 
-import Article from "@/models/article";
 import Comment from "@/models/comment";
 import Reply from "@/models/reply";
 import User from "@/models/user";
@@ -31,13 +28,6 @@ const USER_INCLUDE: Includeable[] = [
     model: User,
     as: "user",
     attributes: ["userId", "userName", "avatar", "role"]
-  }
-];
-// 关联的评论
-const Comment_INCLUDE: Includeable[] = [
-  {
-    model: Comment,
-    as: "comment"
   }
 ];
 
@@ -76,36 +66,6 @@ export function getReplies(params: { commentId?: string; page?: number; pageSize
         }
       }
       resolve(replyResult);
-    } catch (err) {
-      reject(err);
-    }
-  });
-}
-
-/**
- * @description 递归删除回复记录
- * @param {Transaction} transaction 事务对象
- * @param {string} replyId 需要删除的回复ID
- * @param {string} userId 操作的用户ID
- */
-export function recursiveDeletionReply(transaction: Transaction, replyId: string, userId?: string) {
-  return new Promise<void>(async (resolve, reject) => {
-    try {
-      const reply = (await Reply.findByPk(replyId))?.toJSON();
-      const rows = await Reply.destroy({
-        where: userId ? { userId, replyId } : { replyId },
-        transaction
-      });
-      if (!rows && userId) {
-        reject(`${replyId}回复删除失败`);
-      }
-      deleteLocalAsset(reply.content);
-
-      const replyList = await Reply.findAll({ where: { parentId: replyId } });
-      for (const item of replyList) {
-        await recursiveDeletionReply(transaction, item?.dataValues.replyId);
-      }
-      resolve();
     } catch (err) {
       reject(err);
     }
@@ -197,7 +157,7 @@ export default {
         }
       }
 
-      const reply = await Reply.create({
+      const { dataValues: reply } = await Reply.create({
         content,
         commentId,
         parentId,
@@ -206,38 +166,36 @@ export default {
 
       ctx.body = response({ data: reply, message: "创建成功" });
 
-      if (parentId) {
-        const reply = (
-          await Reply.findByPk(parentId, {
-            include: [{ model: User, as: "user" }, ...Comment_INCLUDE]
-          })
-        )?.toJSON();
+      if (parentId || commentId) {
+        const result = parentId
+          ? await Reply.findByPk(parentId, {
+              include: [
+                { model: User, as: "user" },
+                {
+                  model: Comment,
+                  as: "comment"
+                }
+              ]
+            })
+          : await Comment.findByPk(commentId, {
+              include: [{ model: User, as: "user" }]
+            });
 
-        if (reply.user.emailService && reply.user.email) {
-          const articleId = reply.comment.articleId;
-          sendMail(
-            reply.user.email,
-            "DAIXU BLOG",
-            `收到一条回复，<a href="https://daixu.cn/${
-              articleId ? "article/" + articleId : "community"
-            }" target="_blank" style="color:#9fa3f1;font-weight:initial;cursor:pointer;text-decoration:none">点击查看 </a>。<div>${html}</div>`
-          );
-        }
-      } else {
-        const comment = (
-          await Comment.findByPk(reply.dataValues.commentId, {
-            include: [{ model: User, as: "user" }]
-          })
-        )?.toJSON();
+        if (result) {
+          const { dataValues } = result;
+          const emailService = dataValues.user.emailService;
+          const email = dataValues.user.email;
+          const articleId = parentId ? dataValues.comment.articleId : dataValues.articleId;
 
-        if (comment.user.emailService && comment.user.email) {
-          sendMail(
-            comment.user.email,
-            "DAIXU BLOG",
-            `收到一条回复，<a href="https://daixu.cn/${
-              comment.articleId ? "article/" + comment.articleId : "community"
-            }" target="_blank" style="color:#9fa3f1;font-weight:initial;cursor:pointer;text-decoration:none">点击查看 </a>。<div>${html}</div>`
-          );
+          if (emailService && email) {
+            sendMail(
+              email,
+              "DAIXU BLOG",
+              `收到一条回复，<a href="https://daixu.cn/${
+                articleId ? "article/" + articleId : "community"
+              }" target="_blank" style="color:#9fa3f1;font-weight:initial;cursor:pointer;text-decoration:none">点击查看 </a>。<div>${html}</div>`
+            );
+          }
         }
       }
     } catch (error: any) {
@@ -247,19 +205,6 @@ export default {
       });
     }
   },
-  async destroy(ctx: Context) {
-    const transaction = await sequelize.transaction();
-    try {
-      const { replyId, userId } = ctx.params;
-      await recursiveDeletionReply(transaction, replyId, userId);
-
-      await transaction.commit();
-      ctx.body = response({ message: "删除成功" });
-    } catch (error: any) {
-      await transaction.rollback();
-      throw responseError({ code: 14007, message: error?.message });
-    }
-  },
   async list(ctx: Context) {
     try {
       const { count, rows } = await getReplies(ctx.params);
@@ -267,6 +212,24 @@ export default {
       ctx.body = response({ data: { total: count, list: rows }, message: "查询成功" });
     } catch (error: any) {
       throw responseError({ code: 14009, message: error?.message });
+    }
+  },
+  async destroy(ctx: Context) {
+    try {
+      const { replyId, userId } = ctx.params;
+
+      const rows = await Reply.destroy({
+        where: userId ? { userId, replyId } : { replyId },
+        individualHooks: true
+      });
+
+      if (rows) {
+        ctx.body = response({ message: "删除成功" });
+      } else {
+        throw responseError({ code: 14007 });
+      }
+    } catch (error: any) {
+      throw responseError({ code: 14007, message: error?.message });
     }
   }
 };

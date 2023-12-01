@@ -9,6 +9,7 @@ import response from "@/config/response";
 import responseError from "@/config/response/error";
 import { sendMail } from "@/utils/nodemailer";
 import { Op, FindAttributeOptions } from "sequelize";
+import { filteredParams } from "@/utils/api";
 
 import Link from "@/models/link";
 
@@ -59,21 +60,11 @@ export default {
    */
   async create(ctx: Context) {
     try {
-      const { name, description, logo, url, email, qq } = ctx.params;
-      const { dataValues } = await Link.create({
-        name,
-        description,
-        logo,
-        url,
-        email,
-        qq
-      });
+      const values = ["name", "description", "logo", "url", "email", "qq"];
+      const { dataValues: link } = await Link.create(filteredParams(ctx.params, values));
 
-      sendMail("daixu.cn@outlook.com", "友联申请", `收到一份${name}的友联申请，请及时处理。`);
+      sendMail("daixu.cn@outlook.com", "友联申请", `收到一份${link.name}的友联申请，请及时处理。`);
 
-      const link = await Link.findByPk(dataValues.linkId, {
-        attributes: LINK_ATTRIBUTES
-      });
       ctx.body = response({ data: link, message: "创建成功" });
     } catch (error: any) {
       throw responseError({ code: 15001, message: error?.errors[0]?.message ?? error?.message });
@@ -81,27 +72,27 @@ export default {
   },
   async update(ctx: Context) {
     try {
-      const { linkId, name, description, logo, url, email, qq, check } = ctx.params;
-      const [rows] = await Link.update(
-        { name, description, logo, url, email, qq, check },
-        { where: { linkId } }
-      );
+      const { linkId, check, ...values } = ctx.params;
 
-      const link = await Link.findByPk(linkId, {
-        attributes: LINK_ATTRIBUTES
-      });
+      const [rows] = await Link.update(values, { where: { linkId } });
 
-      if ((check === 0 || check === 1) && link?.dataValues.email) {
-        sendMail(
-          link?.dataValues.email,
-          "DAIXU BLOG",
-          check === 0
-            ? `非常抱歉，您的友联已被管理员拒绝，请根据下方反馈邮箱了解详情。`
-            : `您的友联已通过审核，感谢支持。`
-        );
-      }
       if (rows) {
-        ctx.body = response({ data: link, message: "修改成功" });
+        ctx.body = response({ message: "修改成功" });
+
+        const link = (
+          await Link.findByPk(linkId, {
+            attributes: LINK_ATTRIBUTES
+          })
+        )?.toJSON();
+        if ((check === 0 || check === 1) && link.email) {
+          sendMail(
+            link.email,
+            "DAIXU BLOG",
+            check === 0
+              ? `抱歉，您的友联已被拒绝，可通过下方邮箱联系管理员。感谢您的支持。`
+              : `您的友联已通过审核，感谢您的支持。`
+          );
+        }
       } else {
         throw responseError({ code: 15002 });
       }

@@ -159,3 +159,18 @@ export function truncateData(data: any, MAX_LOG_LENGTH = 1000): string {
   }
   return "";
 }
+
+/**
+ * @description 过滤对象中的非法字段
+ * @param {any} params 需要过滤的对象
+ * @param {array[]} fields 允许的字段
+ * @return {object} 过滤后的对象
+ */
+export function filteredParams<T extends Record<string, any>>(
+  params: T,
+  fields: (keyof T)[]
+): Pick<T, (typeof fields)[number]> {
+  return Object.fromEntries(
+    Object.entries(params).filter(([key]) => fields.includes(key as keyof T))
+  ) as Pick<T, (typeof fields)[number]>;
+}

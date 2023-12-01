@@ -7,6 +7,9 @@
 import { DataTypes } from "sequelize";
 import sequelize from "@/config/sequelize";
 import { generateId } from "@/utils/api";
+import { deleteLocalAsset } from "@/utils/file";
+
+import Reply from "@/models/reply";
 
 const Comment = sequelize.define(
   "comment",
@@ -55,7 +58,35 @@ const Comment = sequelize.define(
       }
     }
   },
-  { freezeTableName: true, comment: "评论表", createdAt: "createdAt", updatedAt: "updatedAt" }
+  {
+    freezeTableName: true,
+    comment: "评论表",
+    createdAt: "createdAt",
+    updatedAt: "updatedAt",
+    hooks: {
+      afterDestroy({ dataValues: comment }) {
+        return new Promise<void>(async (resolve, reject) => {
+          try {
+            // 删除评论关联内容的本地文件
+            deleteLocalAsset(comment.content);
+
+            // 删除评论关联的回复
+            const replyList = await Reply.findAll({ where: { commentId: comment.commentId } });
+            for (const { dataValues } of replyList) {
+              Reply.destroy({
+                where: { replyId: dataValues.replyId },
+                individualHooks: true
+              });
+            }
+
+            resolve();
+          } catch (error) {
+            reject(error);
+          }
+        });
+      }
+    }
+  }
 );
 
 export default Comment;

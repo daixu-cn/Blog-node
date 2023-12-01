@@ -8,7 +8,7 @@ import Update from "@/models/update";
 import Lemon from "@/models/lemon";
 
 // 模型同步
-// Lemon.sync({ force: true });
+// sequelize.sync({ force: true });
 
 Article.belongsTo(User, {
   foreignKey: "userId",

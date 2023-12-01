@@ -220,8 +220,6 @@ router.post("/list", articleController.list);
  *                 message:
  *                   type: string
  *                   description: 返回信息
- *                 data:
- *                   $ref: '#/components/schemas/Article'
  */
 router.patch("/update", auth(0), articleController.update);
 

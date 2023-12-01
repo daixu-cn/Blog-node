@@ -9,13 +9,10 @@ import response from "@/config/response";
 import responseError from "@/config/response/error";
 import { Op, FindAttributeOptions, Includeable } from "sequelize";
 import sequelize from "@/config/sequelize";
-import { recursiveDeletionComment } from "@/controllers/comment";
 import redis from "@/utils/redis";
 import dayjs from "dayjs";
 import { sendMail } from "@/utils/nodemailer";
-import { ASSET_DIR, ASSET_PREFIX, MIN_DATE } from "@/config/env";
-import fs from "fs-extra";
-import { deleteLocalAsset } from "@/utils/file";
+import { filteredParams } from "@/utils/api";
 
 import User from "@/models/user";
 import Article from "@/models/article";
@@ -54,7 +51,7 @@ const INCLUDE: Includeable[] = [
  * @param {string} articleId 文章ID
  * @return {number}
  */
-function getCommentReplyTotal(articleId) {
+function getCommentReplyTotal(articleId: string): Promise<number> {
   return new Promise<number>(async (resolve, reject) => {
     try {
       let total = 0;
@@ -158,37 +155,20 @@ export default {
    */
   async create(ctx: Context) {
     try {
-      const {
-        title,
-        description,
-        category,
-        poster,
-        video,
-        content,
-        disableComment,
-        isPrivate,
-        unlockAt,
-        userId
-      } = ctx.params;
-      const { dataValues } = await Article.create({
-        title,
-        description,
-        category,
-        poster: poster ? poster.replace(ASSET_PREFIX, "") : undefined,
-        video: video ? video.replace(ASSET_PREFIX, "") : undefined,
-        content,
-        disableComment,
-        isPrivate,
-        unlockAt: unlockAt ? unlockAt : undefined,
-        userId
-      });
+      const values = [
+        "title",
+        "description",
+        "category",
+        "poster",
+        "video",
+        "content",
+        "disableComment",
+        "isPrivate",
+        "unlockAt",
+        "userId"
+      ];
 
-      const article = (
-        await Article.findByPk(dataValues.articleId, {
-          attributes: ARTICLE_ATTRIBUTES,
-          include: INCLUDE
-        })
-      )?.toJSON();
+      const { dataValues: article } = await Article.create(filteredParams(ctx.params, values));
 
       ctx.body = response({ data: article, message: "创建成功" });
 
@@ -203,7 +183,7 @@ export default {
             sendMail(
               item.dataValues.email,
               "DAIXU BLOG",
-              `博主发布了新文章--<a href="https://daixu.cn/article/${article?.articleId}" target="_blank" style="color:#9fa3f1;font-weight:initial;cursor:pointer;text-decoration:none">${title}</a>。<div>${description}</div>`
+              `博主发布了新文章--<a href="https://daixu.cn/article/${article.articleId}" target="_blank" style="color:#9fa3f1;font-weight:initial;cursor:pointer;text-decoration:none">${article.title}</a>。<div>${article.description}</div>`
             );
           }
         }
@@ -273,41 +253,14 @@ export default {
   },
   async update(ctx: Context) {
     try {
-      const {
-        articleId,
-        title,
-        content,
-        category,
-        poster,
-        video,
-        description,
-        disableComment,
-        isPrivate,
-        unlockAt,
-        userId
-      } = ctx.params;
+      const { articleId, userId, ...values } = ctx.params;
 
-      const [rows] = await Article.update(
-        {
-          title,
-          content,
-          category,
-          poster: poster ? poster.replace(ASSET_PREFIX, "") : undefined,
-          video: video ? video.replace(ASSET_PREFIX, "") : undefined,
-          description,
-          disableComment,
-          isPrivate,
-          unlockAt: unlockAt ?? MIN_DATE
-        },
-        { where: { articleId, userId } }
-      );
-
-      const article = await Article.findByPk(articleId, {
-        attributes: ARTICLE_ATTRIBUTES,
-        include: INCLUDE
+      const [rows] = await Article.update(values, {
+        where: { articleId, userId }
       });
+
       if (rows) {
-        ctx.body = response({ data: article, message: "修改成功" });
+        ctx.body = response({ message: "修改成功" });
       } else {
         throw responseError({ code: 13003 });
       }
@@ -394,34 +347,20 @@ export default {
     }
   },
   async destroy(ctx: Context) {
-    const transaction = await sequelize.transaction();
     try {
       const { articleId, userId } = ctx.params;
 
-      const article = (await Article.findByPk(articleId))?.toJSON();
       const rows = await Article.destroy({
         where: { articleId, userId },
-        transaction
+        individualHooks: true
       });
 
       if (rows) {
-        const commentList = await Comment.findAll({ where: { articleId } });
-        for (const item of commentList) {
-          await recursiveDeletionComment(transaction, item?.dataValues.commentId);
-        }
-
-        // 删除文章内容、封面、视频的本地文件
-        fs.remove(`${ASSET_DIR}${article.poster}`);
-        fs.remove(`${ASSET_DIR}${article.video}`);
-        deleteLocalAsset(article.content);
+        ctx.body = response({ message: "删除成功" });
       } else {
         throw responseError({ code: 13007 });
       }
-
-      await transaction.commit();
-      ctx.body = response({ message: "删除成功" });
     } catch (error: any) {
-      await transaction.rollback();
       throw responseError({ code: 13007, message: error.message });
     }
   }

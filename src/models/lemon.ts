@@ -7,8 +7,9 @@
 import { DataTypes } from "sequelize";
 import sequelize from "@/config/sequelize";
 import { generateId } from "@/utils/api";
-import { ASSET_PREFIX } from "@/config/env";
+import { ASSET_DIR, ASSET_PREFIX } from "@/config/env";
 import { lemon_media_type } from "@/global/enum";
+import fs from "fs-extra";
 
 const Lemon = sequelize.define(
   "lemon",
@@ -24,7 +25,7 @@ const Lemon = sequelize.define(
       }
     },
     description: {
-      type: DataTypes.TEXT,
+      type: DataTypes.CHAR(50),
       comment: "描述"
     },
     path: {
@@ -39,6 +40,9 @@ const Lemon = sequelize.define(
       get() {
         const path = this.getDataValue("path");
         return path ? `${ASSET_PREFIX}${path}` : null;
+      },
+      set(path: string) {
+        this.setDataValue("path", path ? path.replace(ASSET_PREFIX, "") : null);
       }
     },
     mediaType: {
@@ -60,7 +64,13 @@ const Lemon = sequelize.define(
     freezeTableName: true,
     comment: "柠檬生活记录表",
     createdAt: "createdAt",
-    updatedAt: "updatedAt"
+    updatedAt: "updatedAt",
+    hooks: {
+      afterDestroy({ dataValues: lemon }) {
+        // 删除记录关联的本地文件
+        fs.remove(`${ASSET_DIR}${lemon.path}`);
+      }
+    }
   }
 );
 

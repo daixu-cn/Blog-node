@@ -136,8 +136,6 @@ router.put("/create", linkController.create);
  *                 message:
  *                   type: string
  *                   description: 返回信息
- *                 data:
- *                   $ref: '#/components/schemas/Link'
  */
 router.patch("/update", auth(0), linkController.update);
 

@@ -8,7 +8,12 @@ import { DataTypes } from "sequelize";
 import sequelize from "@/config/sequelize";
 import { category } from "@/global/enum";
 import { generateId } from "@/utils/api";
-import { ASSET_PREFIX, MIN_DATE } from "@/config/env";
+import { ASSET_DIR, ASSET_PREFIX, MIN_DATE } from "@/config/env";
+import fs from "fs-extra";
+import { deleteLocalAsset } from "@/utils/file";
+
+import Comment from "@/models/comment";
+import { recursiveDeletionComment } from "@/controllers/comment";
 
 const Article = sequelize.define(
   "article",
@@ -54,10 +59,12 @@ const Article = sequelize.define(
     poster: {
       type: DataTypes.CHAR(255),
       comment: "预览图片",
-      defaultValue: "",
       get() {
         const poster = this.getDataValue("poster");
         return poster ? `${ASSET_PREFIX}${poster}` : null;
+      },
+      set(poster: string) {
+        this.setDataValue("poster", poster ? poster.replace(ASSET_PREFIX, "") : null);
       }
     },
     video: {
@@ -66,6 +73,9 @@ const Article = sequelize.define(
       get() {
         const video = this.getDataValue("video");
         return video ? `${ASSET_PREFIX}${video}` : null;
+      },
+      set(video: string) {
+        this.setDataValue("video", video ? video.replace(ASSET_PREFIX, "") : null);
       }
     },
     content: {
@@ -116,6 +126,9 @@ const Article = sequelize.define(
           msg: "unlockAt 字段类型错误",
           args: false
         }
+      },
+      set(unlockAt) {
+        this.setDataValue("unlockAt", unlockAt ?? MIN_DATE);
       }
     },
     userId: {
@@ -132,7 +145,26 @@ const Article = sequelize.define(
       }
     }
   },
-  { freezeTableName: true, comment: "文章表", createdAt: "createdAt", updatedAt: "updatedAt" }
+  {
+    freezeTableName: true,
+    comment: "文章表",
+    createdAt: "createdAt",
+    updatedAt: "updatedAt",
+    hooks: {
+      async afterDestroy({ dataValues: article }) {
+        // 删除文章关联内容、封面、视频的本地文件
+        fs.remove(`${ASSET_DIR}${article.poster}`);
+        fs.remove(`${ASSET_DIR}${article.video}`);
+        deleteLocalAsset(article.content);
+
+        // 删除文章关联的评论/回复
+        const commentList = await Comment.findAll({ where: { articleId: article.articleId } });
+        for (const { dataValues } of commentList) {
+          await recursiveDeletionComment(dataValues.commentId);
+        }
+      }
+    }
+  }
 );
 
 export default Article;

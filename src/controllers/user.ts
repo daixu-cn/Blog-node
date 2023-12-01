@@ -378,44 +378,32 @@ export default {
   },
   async update(ctx: Context) {
     try {
-      const { avatar, userName, email, sms, qq, google, github, emailService, userId } = ctx.params;
-
-      const oldAvatar = avatar && (await User.findByPk(userId))?.dataValues.avatar;
+      const { userId, sms, email, role, ...values } = ctx.params;
 
       if (email) {
         if ((await redis.get(email)) !== sms) {
           throw responseError({ code: 11005 });
         }
-        const userList = await User.findAll({
+        const rows = await User.findAll({
           where: { email }
         });
-        if (userList.length) {
+        if (rows.length) {
           throw responseError({ code: 11008 });
         }
       }
 
       const [rows] = await User.update(
         {
-          avatar: avatar ? avatar.replace(ASSET_PREFIX, "") : undefined,
           email,
-          userName,
-          qq,
-          google,
-          github,
-          emailService
+          ...values
         },
-        { where: { userId } }
+        { where: { userId }, individualHooks: true }
       );
-
-      const user = await User.findByPk(userId, {
-        attributes: USER_ATTRIBUTES
-      });
       if (rows) {
+        const user = await User.findByPk(userId, {
+          attributes: USER_ATTRIBUTES
+        });
         ctx.body = response({ data: user, message: "修改成功" });
-
-        if (oldAvatar && !oldAvatar.endsWith("/image/avatar.png")) {
-          fs.remove(`${ASSET_DIR}${oldAvatar.replace(ASSET_PREFIX, "")}`);
-        }
       } else {
         throw responseError({ code: 11010 });
       }
