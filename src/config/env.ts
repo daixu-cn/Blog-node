@@ -32,6 +32,8 @@ export const ASSET_PREFIX = process.env.ASSET_PREFIX;
 export const TRUSTED_DOMAINS = ["127.0.0.1", "localhost", "daixu.cn", "thund.com"];
 // 版权描述
 export const COPYRIGHT = `©️ ${new Date().getFullYear()} DAIXU.CN 版权所有。未经授权禁止复制或使用。`;
+// 数据库最小时间
+export const MIN_DATE = "1970-01-01 00:00:00";
 
 // mysql配置
 export const _MYSQL = {

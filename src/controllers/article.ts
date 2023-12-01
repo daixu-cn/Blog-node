@@ -13,7 +13,7 @@ import { recursiveDeletionComment } from "@/controllers/comment";
 import redis from "@/utils/redis";
 import dayjs from "dayjs";
 import { sendMail } from "@/utils/nodemailer";
-import { ASSET_DIR, ASSET_PREFIX } from "@/config/env";
+import { ASSET_DIR, ASSET_PREFIX, MIN_DATE } from "@/config/env";
 import fs from "fs-extra";
 import { deleteLocalAsset } from "@/utils/file";
 
@@ -34,6 +34,7 @@ const ARTICLE_ATTRIBUTES: FindAttributeOptions = [
   "views",
   "disableComment",
   "isPrivate",
+  "unlockAt",
   "createdAt",
   "updatedAt"
 ];
@@ -142,6 +143,10 @@ export default {
    *               type: integer
    *               example: 1
    *               description: 角色(0:管理员、1:普通用户)
+   *         unlockAt:
+   *           type: string
+   *           example: 2023-01-10T01:55:16.000Z
+   *           description: 解锁时间
    *         createdAt:
    *           type: string
    *           example: 2023-01-10T01:55:16.000Z
@@ -162,6 +167,7 @@ export default {
         content,
         disableComment,
         isPrivate,
+        unlockAt,
         userId
       } = ctx.params;
       const { dataValues } = await Article.create({
@@ -173,17 +179,20 @@ export default {
         content,
         disableComment,
         isPrivate,
+        unlockAt: unlockAt ? unlockAt : undefined,
         userId
       });
 
-      const article = await Article.findByPk(dataValues.articleId, {
-        attributes: ARTICLE_ATTRIBUTES,
-        include: INCLUDE
-      });
+      const article = (
+        await Article.findByPk(dataValues.articleId, {
+          attributes: ARTICLE_ATTRIBUTES,
+          include: INCLUDE
+        })
+      )?.toJSON();
 
       ctx.body = response({ data: article, message: "创建成功" });
 
-      if (!isPrivate) {
+      if (!article.isPrivate && dayjs().isAfter(article.unlockAt)) {
         const userList = await User.findAll({
           where: {
             emailService: true
@@ -194,7 +203,7 @@ export default {
             sendMail(
               item.dataValues.email,
               "DAIXU BLOG",
-              `博主发布了新文章--<a href="https://daixu.cn/article/${article?.dataValues.articleId}" target="_blank" style="color:#9fa3f1;font-weight:initial;cursor:pointer;text-decoration:none">${title}</a>。<div>${description}</div>`
+              `博主发布了新文章--<a href="https://daixu.cn/article/${article?.articleId}" target="_blank" style="color:#9fa3f1;font-weight:initial;cursor:pointer;text-decoration:none">${title}</a>。<div>${description}</div>`
             );
           }
         }
@@ -208,6 +217,7 @@ export default {
       const {
         keyword,
         category,
+        status,
         startTime,
         endTime,
         page = 1,
@@ -227,6 +237,11 @@ export default {
               ]
             },
             category && { category },
+            (status === 0 || status === 1) && {
+              unlockAt: {
+                [Op[status === 1 ? "gte" : "lte"]]: dayjs().format("YYYY-MM-DDTHH:mm:ss.sssZZ")
+              }
+            },
             startTime && { createdAt: { [Op.gte]: startTime } },
             endTime && { createdAt: { [Op.lte]: endTime } }
           ]
@@ -241,10 +256,13 @@ export default {
       const list: any[] = [];
       for (const item of rows) {
         const article = item.toJSON();
+        const unlock = dayjs().isAfter(article.unlockAt);
+
         list.push({
           ...article,
           comment_reply_total: await getCommentReplyTotal(article.articleId),
-          content: article.isPrivate ? (role === 0 ? article.content : "") : article.content
+          content:
+            article.isPrivate || !unlock ? (role === 0 ? article.content : "") : article.content
         });
       }
 
@@ -265,8 +283,10 @@ export default {
         description,
         disableComment,
         isPrivate,
+        unlockAt,
         userId
       } = ctx.params;
+
       const [rows] = await Article.update(
         {
           title,
@@ -276,7 +296,8 @@ export default {
           video: video ? video.replace(ASSET_PREFIX, "") : undefined,
           description,
           disableComment,
-          isPrivate
+          isPrivate,
+          unlockAt: unlockAt ?? MIN_DATE
         },
         { where: { articleId, userId } }
       );
@@ -316,11 +337,14 @@ export default {
       }
 
       if (article) {
+        const unlock = dayjs().isAfter(dayjs(article.unlockAt));
+
         ctx.body = response({
           data: {
             ...article,
             comment_reply_total: await getCommentReplyTotal(articleId),
-            content: article.isPrivate ? (role === 0 ? article.content : "") : article.content
+            content:
+              article.isPrivate || !unlock ? (role === 0 ? article.content : "") : article.content
           },
           message: "查询成功"
         });

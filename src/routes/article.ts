@@ -52,6 +52,10 @@ router.prefix("/article");
  *                 type: integer
  *                 default: 0
  *                 description: 私有文章(0:公开、1:私有)
+ *               unlockAt:
+ *                 type: string
+ *                 default: "1000-01-01 00:00:00"
+ *                 description: 解锁时间
  *               description:
  *                 type: string
  *                 description: 文章描述
@@ -102,6 +106,9 @@ router.put("/create", auth(0), articleController.create);
  *                 description: 搜索关键字（articleId，title，description）
  *               category:
  *                 $ref: '#/components/schemas/Category'
+ *               status:
+ *                 type: integer
+ *                 description: 解锁状态(0:解锁、1:锁定)
  *               startTime:
  *                 type: string
  *                 description: 文章创建的开始时间
@@ -190,12 +197,13 @@ router.post("/list", articleController.list);
  *                 description: 文章描述
  *               disableComment:
  *                 type: integer
- *                 default: 0
  *                 description: 禁止评论(0:允许评论、1:禁止评论)
  *               isPrivate:
  *                 type: integer
- *                 default: 0
  *                 description: 私有文章(0:公开、1:私有)
+ *               unlockAt:
+ *                 type: string
+ *                 description: 解锁时间
  *             required:
  *               - articleId
  *     responses:

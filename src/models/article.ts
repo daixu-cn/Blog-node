@@ -8,7 +8,7 @@ import { DataTypes } from "sequelize";
 import sequelize from "@/config/sequelize";
 import { category } from "@/global/enum";
 import { generateId } from "@/utils/api";
-import { ASSET_PREFIX } from "@/config/env";
+import { ASSET_PREFIX, MIN_DATE } from "@/config/env";
 
 const Article = sequelize.define(
   "article",
@@ -103,6 +103,18 @@ const Article = sequelize.define(
       validate: {
         isBoolean: {
           message: "isPrivate 字段类型错误"
+        }
+      }
+    },
+    unlockAt: {
+      type: DataTypes.DATE,
+      comment: "解锁时间",
+      allowNull: false,
+      defaultValue: MIN_DATE,
+      validate: {
+        isDate: {
+          msg: "unlockAt 字段类型错误",
+          args: false
         }
       }
     },
