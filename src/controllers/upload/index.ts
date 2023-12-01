@@ -57,15 +57,11 @@ export default {
       const _path: string = ctx.params?.path;
       const fullPath = `${ASSET_DIR}${_path.replace(ASSET_PREFIX, "")}`;
 
-      if (_path?.includes("/Blog/")) {
-        if (fs.existsSync(fullPath)) {
-          fs.remove(fullPath);
-          ctx.body = response({ message: "操作成功" });
-        } else {
-          throw responseError({ code: 12013 });
-        }
+      if (fs.existsSync(fullPath)) {
+        fs.remove(fullPath);
+        ctx.body = response({ message: "操作成功" });
       } else {
-        throw responseError({ code: 12018 });
+        throw responseError({ code: 12013 });
       }
     } catch (error: any) {
       throw responseError({

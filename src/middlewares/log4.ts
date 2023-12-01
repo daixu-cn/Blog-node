@@ -34,7 +34,6 @@ function generateLogs(ctx: Context, startTime: number, Extras: string[] = []) {
 
   const geo = geoip.lookup(ctx.clientIp);
   const address = geo ? ` (${geo.country}-${geo.region}-${geo.city})` : "";
-
   return [
     // 请求方法 请求路径 响应时间（ms） ip
     `[${method}] ${ctx.url} ${new Date().valueOf() - startTime}ms ${ctx.clientIp}${address}`,
@@ -46,7 +45,7 @@ function generateLogs(ctx: Context, startTime: number, Extras: string[] = []) {
     `Response: ${JSON.stringify({
       status: ctx.response.status,
       message: ctx.response.message,
-      body: { ...body, data: truncateData(body?.data) }
+      body: truncateData({ ...body, data: body?.data })
     })}`,
     ...Extras,
     "\n"
