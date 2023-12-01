@@ -45,7 +45,7 @@ function generateLogs(ctx: Context, startTime: number, Extras: string[] = []) {
     `Response: ${JSON.stringify({
       status: ctx.response.status,
       message: ctx.response.message,
-      body: truncateData({ ...body, data: body?.data })
+      body: truncateData({ data: body?.data })
     })}`,
     ...Extras,
     "\n"
