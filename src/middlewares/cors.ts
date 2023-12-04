@@ -26,5 +26,7 @@ const config: Options = {
 };
 
 export default function () {
-  return cors(config);
+  // return cors(config);
+  // 允许所有域名跨域
+  return cors();
 }
