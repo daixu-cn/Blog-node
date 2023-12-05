@@ -6,6 +6,7 @@ declare namespace NodeJS {
     PORT: string;
     DOMAIN: string;
     ASSET_DIR: string;
+    WATERMARK: string;
     ASSET_PREFIX: string;
 
     MYSQL_HOST: string;

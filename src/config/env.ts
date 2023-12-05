@@ -25,6 +25,8 @@ export const DOMAIN = process.env.DOMAIN;
 export const URL = `${SCHEME}://${DOMAIN}:${PORT}`;
 // 资源存放路径
 export const ASSET_DIR = process.env.ASSET_DIR;
+// 水印图片路径
+export const WATERMARK = process.env.WATERMARK;
 // 资源获取路径前缀
 export const ASSET_PREFIX = process.env.ASSET_PREFIX;
 
