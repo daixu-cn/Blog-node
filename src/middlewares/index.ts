@@ -22,6 +22,7 @@ import cors from "@/middlewares/cors";
 import helmet from "koa-helmet";
 import ratelimit from "@/middlewares/ratelimit";
 import koaBody from "koa-body";
+import hls from "@/middlewares/hls";
 import koaStatic from "@/middlewares/koaStatic";
 import auth from "@/middlewares/auth";
 import watermark from "@/middlewares/watermark";
@@ -36,8 +37,9 @@ export default compose([
   params(),
   compress(),
   watermark(),
+  hls(),
   koaStatic(),
   auth(-1),
-  ratelimit(),
+  // ratelimit(),
   routes()
 ]);

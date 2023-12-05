@@ -5,6 +5,7 @@ import { generateId } from "@/utils/api";
 import { ASSET_DIR } from "@/config/env";
 import { DirectoriesList, Files } from "./type";
 import { ASSET_PREFIX } from "@/config/env";
+import { destroyVideoAssets } from "@/utils/video";
 
 /**
  * @description 将网络文件保存到本地
@@ -115,6 +116,24 @@ export function deleteLocalAsset(content: string) {
           resolve();
         }
       }
+    } catch (err) {
+      reject(err);
+    }
+  });
+}
+
+/**
+ * @description 校验新旧文件路径，将旧文件删除
+ * @param {string} oldPath 旧文件路径
+ * @param {string} newPath 新文件路径
+ */
+export function validateAndRemoveOld(oldPath: string, newPath: string) {
+  return new Promise<void>((resolve, reject) => {
+    try {
+      if (oldPath && oldPath !== newPath) {
+        fs.remove(`${ASSET_DIR}${oldPath}`);
+      }
+      destroyVideoAssets(oldPath, oldPath !== newPath);
     } catch (err) {
       reject(err);
     }

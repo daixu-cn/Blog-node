@@ -7,8 +7,8 @@
 import { DataTypes } from "sequelize";
 import sequelize from "@/config/sequelize";
 import { generateId } from "@/utils/api";
-import { ASSET_DIR, ASSET_PREFIX } from "@/config/env";
-import fs from "fs-extra";
+import { ASSET_PREFIX } from "@/config/env";
+import { validateAndRemoveOld } from "@/utils/file";
 
 const User = sequelize.define(
   "user",
@@ -105,9 +105,14 @@ const User = sequelize.define(
     updatedAt: "updatedAt",
     hooks: {
       afterUpdate(instance) {
-        const oldAvatar = instance.previous("avatar");
-        if (!oldAvatar.endsWith("/image/avatar.png")) {
-          fs.remove(`${ASSET_DIR}${oldAvatar}`);
+        const changed = instance.changed();
+        if (changed) {
+          if (changed.includes("avatar")) {
+            const oldAvatar = instance.previous("avatar");
+            if (!oldAvatar.endsWith("/image/avatar.png")) {
+              validateAndRemoveOld(oldAvatar, instance.getDataValue("avatar"));
+            }
+          }
         }
       }
     }

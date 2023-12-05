@@ -256,7 +256,8 @@ export default {
       const { articleId, userId, ...values } = ctx.params;
 
       const [rows] = await Article.update(values, {
-        where: { articleId, userId }
+        where: { articleId, userId },
+        individualHooks: true
       });
 
       if (rows) {

@@ -10,6 +10,8 @@ import { generateId } from "@/utils/api";
 import { ASSET_DIR, ASSET_PREFIX } from "@/config/env";
 import { lemon_media_type } from "@/global/enum";
 import fs from "fs-extra";
+import { destroyVideoAssets } from "@/utils/video";
+import { validateAndRemoveOld } from "@/utils/file";
 
 const Lemon = sequelize.define(
   "lemon",
@@ -66,9 +68,18 @@ const Lemon = sequelize.define(
     createdAt: "createdAt",
     updatedAt: "updatedAt",
     hooks: {
+      afterUpdate(instance) {
+        const changed = instance.changed();
+        if (changed) {
+          if (changed.includes("path")) {
+            validateAndRemoveOld(instance.previous("path"), instance.getDataValue("path"));
+          }
+        }
+      },
       afterDestroy({ dataValues: lemon }) {
         // 删除记录关联的本地文件
         fs.remove(`${ASSET_DIR}${lemon.path}`);
+        destroyVideoAssets(lemon.path);
       }
     }
   }

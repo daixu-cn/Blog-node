@@ -4,6 +4,7 @@ import responseError from "@/config/response/error";
 import fs from "fs-extra";
 import { ASSET_DIR, ASSET_PREFIX } from "@/config/env";
 import { handleUploadFile, fileToBase64 } from "@/controllers/upload/file-process";
+import { destroyVideoAssets } from "@/utils/video";
 
 export default {
   async upload(ctx: Context) {
@@ -36,8 +37,11 @@ export default {
 
         if (replaceFile && replaceFile.endsWith(`.${ext}`)) {
           const oldPath = replaceFile.replace(ASSET_PREFIX, "");
-          fs.removeSync(`${ASSET_DIR}${oldPath}`);
-          fs.renameSync(`${ASSET_DIR}${data.replace(ASSET_PREFIX, "")}`, `${ASSET_DIR}${oldPath}`);
+          const fullPath = `${ASSET_DIR}${oldPath}`;
+
+          fs.removeSync(fullPath);
+          fs.renameSync(`${ASSET_DIR}${data.replace(ASSET_PREFIX, "")}`, fullPath);
+          destroyVideoAssets(fullPath, false);
 
           ctx.body = response({ data: `${ASSET_PREFIX}${oldPath}` });
         } else {
@@ -54,11 +58,13 @@ export default {
   },
   destroy(ctx: Context) {
     try {
-      const _path: string = ctx.params?.path;
-      const fullPath = `${ASSET_DIR}${_path.replace(ASSET_PREFIX, "")}`;
+      const filePath = ctx.params?.path?.replace(ASSET_PREFIX, "");
+      const fullPath = `${ASSET_DIR}${filePath}`;
 
       if (fs.existsSync(fullPath)) {
-        fs.remove(fullPath);
+        fs.removeSync(fullPath);
+        destroyVideoAssets(fullPath);
+
         ctx.body = response({ message: "操作成功" });
       } else {
         throw responseError({ code: 12013 });

@@ -10,7 +10,8 @@ import { category } from "@/global/enum";
 import { generateId } from "@/utils/api";
 import { ASSET_DIR, ASSET_PREFIX, MIN_DATE } from "@/config/env";
 import fs from "fs-extra";
-import { deleteLocalAsset } from "@/utils/file";
+import { deleteLocalAsset, validateAndRemoveOld } from "@/utils/file";
+import { destroyVideoAssets } from "@/utils/video";
 
 import Comment from "@/models/comment";
 import { recursiveDeletionComment } from "@/controllers/comment";
@@ -74,8 +75,8 @@ const Article = sequelize.define(
         const video = this.getDataValue("video");
         return video ? `${ASSET_PREFIX}${video}` : null;
       },
-      set(video: string) {
-        this.setDataValue("video", video ? video.replace(ASSET_PREFIX, "") : null);
+      set(video?: string) {
+        this.setDataValue("video", video ? video?.replace(ASSET_PREFIX, "") : null);
       }
     },
     content: {
@@ -151,10 +152,20 @@ const Article = sequelize.define(
     createdAt: "createdAt",
     updatedAt: "updatedAt",
     hooks: {
+      afterUpdate(instance) {
+        const changed = instance.changed();
+        if (changed) {
+          if (changed.includes("poster")) {
+            validateAndRemoveOld(instance.previous("poster"), instance.getDataValue("poster"));
+          } else if (changed.includes("video")) {
+            validateAndRemoveOld(instance.previous("video"), instance.getDataValue("video"));
+          }
+        }
+      },
       async afterDestroy({ dataValues: article }) {
         // 删除文章关联内容、封面、视频的本地文件
         fs.remove(`${ASSET_DIR}${article.poster}`);
-        fs.remove(`${ASSET_DIR}${article.video}`);
+        destroyVideoAssets(`${ASSET_DIR}${article.video}`);
         deleteLocalAsset(article.content);
 
         // 删除文章关联的评论/回复
