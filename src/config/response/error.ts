@@ -240,6 +240,20 @@ export function LemonError(code: number): string {
   }
 }
 
+/**
+ * @description AI模块错误码：20001--20999
+ * @param {number} code 状态码
+ * @return {string} 错误信息
+ */
+export function AiError(code: number): string {
+  switch (code) {
+    case 20001:
+      return "接口调用异常失败";
+    default:
+      return "AI异常";
+  }
+}
+
 interface Params {
   code?: number;
   data?: any;
@@ -255,7 +269,9 @@ export default function errorFormat(params: Params) {
     return response({ code, message, data });
   }
 
-  if (code > 19000) {
+  if (code > 20000) {
+    return response({ code, message: AiError(code), data });
+  } else if (code > 19000) {
     return response({ code, message: LemonError(code), data });
   } else if (code > 18000) {
     return response({ code, message: FileError(code), data });
