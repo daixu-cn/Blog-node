@@ -56,8 +56,7 @@ router.prefix("/ai");
  *                   type: string
  *                   description: 响应结果
  */
-// router.post("/chat",auth(), koaBody(), params(), aiController.chat);
-router.post("/chat", aiController.chat);
+router.post("/chat", auth(), koaBody(), params(), aiController.chat);
 
 /**
  * @swagger
@@ -104,6 +103,6 @@ router.post("/chat", aiController.chat);
  *                   type: string
  *                   description: 响应结果
  */
-router.post("/chat/image", koaBody(1024 * 1024 * 3.9), params(), aiController.image);
+router.post("/chat/image", auth(), koaBody(1024 * 1024 * 3.9), params(), aiController.image);
 
 export default router;
