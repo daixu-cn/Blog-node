@@ -248,7 +248,7 @@ export function LemonError(code: number): string {
 export function AiError(code: number): string {
   switch (code) {
     case 20001:
-      return "接口调用异常失败";
+      return "AI接口调用异常失败";
     default:
       return "AI异常";
   }

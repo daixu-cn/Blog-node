@@ -37,8 +37,11 @@ export const COPYRIGHT = `©️ ${new Date().getFullYear()} DAIXU.CN 版权所�
 // 数据库最小时间
 export const MIN_DATE = "1970-01-01 00:00:00";
 
+// Goole AI配置
 export const _GOOGLE = {
-  apiKey: "AIzaSyB2OrzjBKgg2uflLFu6hv5eAAfDOCr6aYw"
+  ai: {
+    apiKey: process.env.GOOGLE_AI_API_KEY
+  }
 };
 
 // mysql配置
