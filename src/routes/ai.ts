@@ -56,7 +56,7 @@ router.prefix("/ai");
  *                   type: string
  *                   description: 响应结果
  */
-router.post("/chat", auth(), koaBody(), params(), aiController.chat);
+router.post("/chat", auth(), aiController.chat);
 
 /**
  * @swagger
