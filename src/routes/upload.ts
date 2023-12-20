@@ -107,49 +107,4 @@ router.put("/file", auth(0), koaBody(), params(), uploadController.upload);
  */
 router.delete("/file", auth(1), uploadController.destroy);
 
-/**
- * @swagger
- * /upload/image/to/base64:
- *   post:
- *     tags:
- *       - 文件服务
- *     summary: 图片转base64格式
- *     description: 将上传的图片转换为base64格式
- *     security: []
- *     requestBody:
- *       description:
- *       required: true
- *       content:
- *         multipart/form-data:
- *           schema:
- *             type: object
- *             properties:
- *               file:
- *                 type: array
- *                 description: 二进制图片文件
- *                 items:
- *                   type: string
- *                   format: binary
- *             required:
- *               - file
- *     responses:
- *       200:
- *         description: OK
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 code:
- *                   type: integer
- *                   description: 状态码：0成功
- *                 message:
- *                   type: string
- *                   description: 返回信息
- *                 data:
- *                   type: string
- *                   description: 根据上传数量返回文件地址或者数组
- *                   example: "data:image/jpeg;base64,iVBORw0KGg..."
- */
-router.post("/image/to/base64", koaBody(), params(), uploadController.imageToBase64);
 export default router;

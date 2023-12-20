@@ -3,7 +3,7 @@ import response from "@/config/response";
 import responseError from "@/config/response/error";
 import fs from "fs-extra";
 import { ASSET_DIR, ASSET_PREFIX } from "@/config/env";
-import { handleUploadFile, fileToBase64 } from "@/controllers/upload/file-process";
+import { handleUploadFile } from "@/controllers/upload/file-process";
 import { destroyVideoAssets } from "@/utils/video";
 
 export default {
@@ -72,34 +72,6 @@ export default {
     } catch (error: any) {
       throw responseError({
         code: error?.code ?? 12012,
-        data: error?.data,
-        message: error?.message
-      });
-    }
-  },
-  async imageToBase64(ctx: Context) {
-    const files = ctx.request?.files;
-
-    try {
-      if (!files?.file) {
-        throw responseError({ code: 12002 });
-      }
-
-      // 判断是否为多个文件
-      if (Array.isArray(files.file)) {
-        const data: string[] = [];
-
-        for (const file of files.file) {
-          data.push(await fileToBase64(file));
-        }
-
-        ctx.body = response({ data });
-      } else {
-        ctx.body = response({ data: await fileToBase64(files.file) });
-      }
-    } catch (error: any) {
-      throw responseError({
-        code: error?.code ?? 12016,
         data: error?.data,
         message: error?.message
       });
