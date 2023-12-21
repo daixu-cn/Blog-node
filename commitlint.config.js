@@ -5,9 +5,22 @@ module.exports = {
     "type-enum": [
       2,
       "always",
-      ["feat", "fix", "docs", "style", "refactor", "perf", "test", "revert", "build", "chore"]
+      [
+        "feat",
+        "fix",
+        "perf",
+        "docs",
+        "refactor",
+        "style",
+        "chore",
+        "ci",
+        "build",
+        "test",
+        "revert",
+        "---"
+      ]
     ],
-    // subject 大小写不做校验
-    "subject-case": [0]
+    // 要求提交消息主题(subject)使用句首大写形式
+    "subject-case": [2, "always", "sentence-case"]
   }
 };
