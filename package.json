@@ -4,6 +4,9 @@
   "private": true,
   "author": "daixu",
   "license": "MIT",
+  "engines": {
+    "node": ">=18.16.0"
+  },
   "scripts": {
     "start": "nodemon",
     "pm2": "pm2 startOrRestart pm2.config.js --env production",
