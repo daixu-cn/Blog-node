@@ -1,6 +1,7 @@
 import Koa from "koa";
 const app = new Koa();
 import "module-alias/register";
+import "@/plugins";
 import middlewares from "@/middlewares";
 import Logger, { errorLogger } from "@/utils/log4";
 import "@/scripts";

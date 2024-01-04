@@ -3,16 +3,6 @@
  * @Author: daixu
  * @Date: 2023-04-22 20:36:55
  */
-
-import dotenv from "dotenv";
-import path from "path";
-dotenv.config({
-  path: path.resolve(
-    process.cwd(),
-    process.env.NODE_ENV === "development" ? ".env.development" : ".env.production"
-  )
-});
-
 import compose from "koa-compose";
 import compress from "koa-compress";
 import ip from "@/middlewares/ip";
