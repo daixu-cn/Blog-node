@@ -9,21 +9,24 @@ const router = new Router();
 import swaggerJsDoc from "swagger-jsdoc";
 import { koaSwagger } from "koa2-swagger-ui";
 import path from "path";
-import { URL } from "@/config/env";
+import { URL, ASSET_PREFIX } from "@/config/env";
+import fs from "fs-extra";
 
 router.prefix("/swagger");
+console.log(URL);
 
 const swaggerSpec = swaggerJsDoc({
   swaggerDefinition: {
     failOnErrors: true,
     openapi: "3.0.3",
     info: {
-      title: "daixu",
+      title: "DAIXU BLOG",
       description: "DAIXU BLOG API DOCS",
-      version: "1.0.0",
+      version: JSON.parse(fs.readFileSync(path.join(__dirname, "../../package.json"), "utf8"))
+        ?.version,
       contact: {
         name: "daixu",
-        url: URL,
+        url: "https://daixu.cn",
         email: "daixu.cn@outlook.com"
       }
     },
@@ -62,6 +65,8 @@ router.get(
     await next();
   },
   koaSwagger({
+    title: "DAIXU BLOG - Swagger UI",
+    favicon: `${ASSET_PREFIX}/image/favicon.ico`,
     routePrefix: false,
     hideTopbar: true,
     swaggerOptions: {
