@@ -13,7 +13,6 @@ import { URL, ASSET_PREFIX } from "@/config/env";
 import fs from "fs-extra";
 
 router.prefix("/swagger");
-console.log(URL);
 
 const swaggerSpec = swaggerJsDoc({
   swaggerDefinition: {
