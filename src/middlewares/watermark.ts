@@ -18,7 +18,9 @@ export default function () {
   return async function (ctx: Context, next: Next) {
     await next();
 
-    if (ctx.status !== 404 && ctx.path.startsWith("/image")) {
+    const fileName = ctx.path.split("/").slice(-1)[0];
+
+    if (ctx.status !== 404 && ctx.path.startsWith("/image") && /^\d+\..+$/.test(fileName)) {
       // 水印信息
       const watermark = {
         text: COPYRIGHT,
