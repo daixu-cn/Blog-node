@@ -5,7 +5,6 @@ node_modules/**/*.*
 .local
 .output.js
 /dist/*
-/public/*
 **/*.sh
 
 # Log files
