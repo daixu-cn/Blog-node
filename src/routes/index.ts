@@ -17,7 +17,6 @@ import link from "@/routes/link";
 import update from "@/routes/update";
 import file from "@/routes/file";
 import lemon from "@/routes/lemon";
-import ai from "@/routes/ai";
 
 export default combineRouters(
   swagger,
@@ -30,6 +29,5 @@ export default combineRouters(
   link,
   update,
   file,
-  lemon,
-  ai
+  lemon
 );
