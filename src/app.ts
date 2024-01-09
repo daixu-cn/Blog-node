@@ -16,7 +16,11 @@ app.on("error", error => {
 });
 
 app.listen(APP_PORT, () => {
-  Logger(`http://localhost:${APP_PORT}\n${figlet.textSync("DAIXU BLOG", { font: "Blocks" })}`);
+  Logger(`http://localhost:${APP_PORT}`);
+
+  if (process.env.NODE_ENV !== "development") {
+    Logger(`\n${figlet.textSync("DAIXU BLOG", { font: "Blocks" })}`);
+  }
 });
 
 export default app;
