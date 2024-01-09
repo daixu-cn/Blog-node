@@ -30,11 +30,16 @@ export default function () {
 
       // 原图尺寸
       const originSize = imageSize(`${ASSET_DIR}${ctx.path}`);
+
       if (originSize.width && originSize.height) {
+        // 获取原图宽高最小值
+        const minSize = Math.min(originSize.width, originSize.height);
         // 水印位置
-        const offset = Math.floor(Math.min(originSize.width, originSize.height) * 0.02);
-        watermark.width = originSize.width * 0.1;
-        watermark.height = originSize.width * 0.1;
+        const offset = Math.floor(minSize * 0.02);
+        // 水印尺寸
+        const size = minSize < 300 ? minSize * 0.5 : minSize * 0.1;
+        watermark.width = size;
+        watermark.height = size;
 
         const imageBuffer = await sharp(`${ASSET_DIR}${ctx.path}`, { animated: true })
           .composite([
