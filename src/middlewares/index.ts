@@ -9,7 +9,7 @@ import ip from "@/middlewares/ip";
 import params from "@/middlewares/params";
 import log4 from "@/middlewares/log4";
 import cors from "@/middlewares/cors";
-import helmet from "koa-helmet";
+import helmet from "@/middlewares/helmet";
 import ratelimit from "@/middlewares/ratelimit";
 import koaBody from "koa-body";
 import hls from "@/middlewares/hls";
