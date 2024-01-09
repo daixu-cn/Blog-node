@@ -29,6 +29,8 @@ export const ASSET_DIR = process.env.ASSET_DIR;
 export const WATERMARK = process.env.WATERMARK;
 // 资源获取路径前缀
 export const ASSET_PREFIX = process.env.ASSET_PREFIX;
+// 网站服务地址（前端页面）
+export const SITE_URL = process.env.SITE_URL;
 
 // 受信任的域名（用于跨域等版块使用）
 export const TRUSTED_DOMAINS = ["127.0.0.1", "localhost", "daixu.cn", "thund.com"];

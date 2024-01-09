@@ -8,8 +8,7 @@ declare namespace NodeJS {
     ASSET_DIR: string;
     WATERMARK: string;
     ASSET_PREFIX: string;
-
-    GOOGLE_AI_API_KEY: string;
+    SITE_URL: string;
 
     MYSQL_HOST: string;
     MYSQL_DATABASE: string;
