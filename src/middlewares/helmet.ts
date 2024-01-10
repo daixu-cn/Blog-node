@@ -9,8 +9,8 @@ import helmet from "koa-helmet";
 export default function () {
   return helmet({
     crossOriginResourcePolicy: {
-      // 允许同站跨域访问的资源
-      policy: "same-site"
+      // 允许跨域访问的资源（如果不想其他网站使用图片的话建议使用 “same-site” 选项）
+      policy: "cross-origin"
     }
   });
 }
