@@ -271,7 +271,7 @@ export default {
   },
   async info(ctx: Context) {
     try {
-      const { articleId, disableViewsIncrement, role } = ctx.params;
+      const { articleId, disableViewsIncrement, role, userId } = ctx.params;
 
       const article = (
         await Article.findOne({
@@ -281,8 +281,9 @@ export default {
         })
       )?.toJSON();
 
-      // 判断该IP当天是否已经查看过文章
+      // 如果不是文章作者并且同一天没有访问过该文章则增加阅读量
       if (
+        userId !== article.user.userId &&
         disableViewsIncrement !== "true" &&
         (await redis.get(`${ctx.clientIp}-${articleId}`)) !== dayjs().format("YYYY-MM-DD")
       ) {
