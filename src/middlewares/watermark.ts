@@ -23,9 +23,15 @@ export default function () {
     if (ctx.status !== 404 && ctx.path.startsWith("/image") && /^\d+\..+$/.test(fileName)) {
       // 水印信息
       const watermark = {
-        text: COPYRIGHT,
+        // 水印图片默认宽高
         width: 30,
-        height: 30
+        height: 30,
+        // 水印文字
+        text: {
+          content: COPYRIGHT,
+          width: 0,
+          height: 0
+        }
       };
 
       // 原图尺寸
@@ -37,9 +43,11 @@ export default function () {
         // 水印位置
         const offset = Math.floor(minSize * 0.02);
         // 水印尺寸
-        const size = minSize < 300 ? minSize * 0.5 : minSize * 0.1;
+        const size = minSize < 50 ? minSize * 0.3 : 50;
         watermark.width = size;
         watermark.height = size;
+        watermark.text.width = originSize.width;
+        watermark.text.height = minSize < 10 ? minSize * 0.3 : 10;
 
         const imageBuffer = await sharp(`${ASSET_DIR}${ctx.path}`, { animated: true })
           .composite([
@@ -54,14 +62,14 @@ export default function () {
             {
               input: {
                 text: {
-                  text: watermark.text,
-                  width: originSize.width,
-                  height: originSize.height * 0.02,
+                  text: watermark.text.content,
+                  width: watermark.text.width,
+                  height: watermark.text.height,
                   rgba: true
                 }
               },
               blend: "xor",
-              top: Math.floor(originSize.height - originSize.height * 0.02 - offset / 2),
+              top: Math.floor(originSize.height - watermark.text.height - offset / 2),
               left: Math.floor(offset / 2)
             }
           ])
