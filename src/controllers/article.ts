@@ -287,7 +287,7 @@ export default {
         disableViewsIncrement !== "true" &&
         (await redis.get(`${ctx.clientIp}-${articleId}`)) !== dayjs().format("YYYY-MM-DD")
       ) {
-        Article.update({ views: sequelize.literal("`views` + 1") }, { where: { articleId } });
+        Article.increment({ views: 1 }, { where: { articleId } });
         redis.set(`${ctx.clientIp}-${articleId}`, dayjs().format("YYYY-MM-DD"), 60 * 60 * 24);
       }
 
