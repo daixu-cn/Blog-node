@@ -198,9 +198,9 @@ export default {
       sendMail(
         "daixu.cn@outlook.com",
         "DAIXU BLOG",
-        `收到一条评论，<a href="https://daixu.cn/${
+        `<div>您有一条新的回复，<a href="https://daixu.cn/${
           articleId === "-1" ? "community" : "article/" + articleId
-        }" target="_blank" style="color:#9fa3f1;font-weight:initial;cursor:pointer;text-decoration:none">点击查看 </a>。<div>${html}</div>`
+        }" target="_blank" style="color:#9fa3f1;font-weight:initial;cursor:pointer;text-decoration:none">点击查看 </a>。</div><div style="background-color:#f7f8fa;padding:5px 15px;margin-top:20px">${html}</div>`
       );
     } catch (error: any) {
       throw responseError({ code: 14001, message: error.errors?.[0]?.message ?? error?.message });

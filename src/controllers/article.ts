@@ -8,7 +8,6 @@ import { Context } from "koa";
 import response from "@/config/response";
 import responseError from "@/config/response/error";
 import { Op, FindAttributeOptions, Includeable } from "sequelize";
-import sequelize from "@/config/sequelize";
 import redis from "@/utils/redis";
 import dayjs from "dayjs";
 import { sendMail } from "@/utils/nodemailer";
@@ -183,7 +182,7 @@ export default {
             sendMail(
               item.dataValues.email,
               "DAIXU BLOG",
-              `博主发布了新文章--<a href="https://daixu.cn/article/${article.articleId}" target="_blank" style="color:#9fa3f1;font-weight:initial;cursor:pointer;text-decoration:none">${article.title}</a>。<div>${article.description}</div>`
+              `<div><p style="margin:0 0 10px 0">博主发布新文章:</p><a href="https://daixu.cn/article/${article.articleId}" target="_blank" style="color:#9fa3f1;font-weight:initial;cursor:pointer;text-decoration:none;margin-top:10px"><span>${article.title}</span><br><span style="font-size:12px;opacity:.9">${article.description}</span></a></div>`
             );
           }
         }

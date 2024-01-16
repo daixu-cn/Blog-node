@@ -191,9 +191,9 @@ export default {
             sendMail(
               email,
               "DAIXU BLOG",
-              `收到一条回复，<a href="https://daixu.cn/${
+              `<div>您有一条新的回复，<a href="https://daixu.cn/${
                 articleId ? "article/" + articleId : "community"
-              }" target="_blank" style="color:#9fa3f1;font-weight:initial;cursor:pointer;text-decoration:none">点击查看 </a>。<div>${html}</div>`
+              }" target="_blank" style="color:#9fa3f1;font-weight:initial;cursor:pointer;text-decoration:none">点击查看 </a>。</div><div style="background-color:#f7f8fa;padding:5px 15px;margin-top:20px">${html}</div>`
             );
           }
         }
