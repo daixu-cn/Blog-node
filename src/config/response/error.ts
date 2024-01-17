@@ -1,4 +1,5 @@
 import response from "@/config/response";
+import { Params } from "./types";
 
 /**
  * @description 用户模块错误码：10001--10999
@@ -177,6 +178,8 @@ export function ServerError(code: number): string {
       return "站点信息查询失败";
     case 16002:
       return "服务器信息查询失败";
+    case 16003:
+      return "站点更新推送异常";
     default:
       return "站点信息模块异常";
   }
@@ -238,11 +241,6 @@ export function LemonError(code: number): string {
     default:
       return "柠檬模块异常";
   }
-}
-interface Params {
-  code?: number;
-  data?: any;
-  message?: string;
 }
 
 export default function errorFormat(params: Params) {

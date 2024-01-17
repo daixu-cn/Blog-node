@@ -1,5 +1,6 @@
 import WebSocket, { ServerOptions } from "ws";
 import { verifyToken } from "@/utils/jsonwebtoken";
+import { WS_SERVER_PORT } from "@/config/env";
 
 type MessageHandler = (message: string) => void;
 type CloseHandler = () => void;
@@ -9,7 +10,7 @@ class WebSocketServer {
   private messageListeners: Set<MessageHandler> = new Set();
   private closeListeners: Set<CloseHandler> = new Set();
 
-  constructor(port: number, isAuth = false, options?: ServerOptions) {
+  constructor(port = WS_SERVER_PORT, isAuth = false, options?: ServerOptions) {
     // 端口号合法性检查
     if (port < 0 || port > 65535) {
       throw new Error("无效的端口号");
@@ -75,12 +76,26 @@ class WebSocketServer {
   }
 
   // 发送消息给所有客户端
-  public broadcast(message: string): void {
-    this.wss.clients.forEach(client => {
+  public broadcast(message: string | Object): Promise<void[]> {
+    const result: Promise<void>[] = [];
+
+    for (const client of this.wss.clients) {
       if (client.readyState === WebSocket.OPEN) {
-        client.send(message);
+        result.push(
+          new Promise<void>((resolve, reject) => {
+            client.send(JSON.stringify(message), error => {
+              if (error) {
+                reject(error);
+              } else {
+                resolve();
+              }
+            });
+          })
+        );
       }
-    });
+    }
+
+    return Promise.all(result);
   }
 
   // 关闭WebSocketServer
