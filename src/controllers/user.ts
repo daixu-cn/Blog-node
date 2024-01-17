@@ -6,11 +6,10 @@ import response from "@/config/response";
 import responseError from "@/config/response/error";
 import { Op, FindAttributeOptions } from "sequelize";
 import { sendMail } from "@/utils/nodemailer";
-import http from "@/server";
+import http from "@/server/axios";
 import { saveFile } from "@/utils/file";
 import User from "@/models/user";
-import { ASSET_DIR, ASSET_PREFIX, _JWT, _SECRET } from "@/config/env";
-import fs from "fs-extra";
+import { _JWT, _SECRET } from "@/config/env";
 
 const USER_ATTRIBUTES: FindAttributeOptions = [
   "userId",
