@@ -5,9 +5,11 @@
  */
 
 import { Context } from "koa";
-import response from "@/config/response";
+import response, { WSResponse } from "@/config/response";
 import responseError from "@/config/response/error";
 import { getServerInfo, getProcessList } from "@/utils/api";
+import ws from "@/server/ws";
+import Tags from "@/server/ws/tags";
 
 import User from "@/models/user";
 import Article from "@/models/article";
@@ -72,7 +74,7 @@ export default {
    * components:
    *   schemas:
    *     ServerInfo:
-   *       description: 站点信息
+   *       description: 服务器信息
    *       type: object
    *       properties:
    *         time:
@@ -300,6 +302,16 @@ export default {
       });
     } catch (error: any) {
       throw responseError({ code: 16002, message: error?.message });
+    }
+  },
+
+  async checker(ctx: Context) {
+    try {
+      await ws.broadcast(WSResponse({ tag: Tags.CHECKER }));
+
+      ctx.body = response({ message: "推送成功" });
+    } catch (error: any) {
+      throw responseError({ code: 16003, message: error?.message });
     }
   }
 };

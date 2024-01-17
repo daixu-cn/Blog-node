@@ -69,4 +69,29 @@ router.get("/site", serverController.site);
  */
 router.get("/info", auth(), serverController.info);
 
+/**
+ * @swagger
+ * /server/checker:
+ *   post:
+ *     tags:
+ *       - 服务器/站点管理
+ *     summary: 站点更新推送
+ *     description: 站点更新推送
+ *     responses:
+ *       200:
+ *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 code:
+ *                   type: integer
+ *                   description: 状态码：0成功
+ *                 message:
+ *                   type: string
+ *                   description: 返回信息
+ */
+router.post("/checker", auth(0), serverController.checker);
+
 export default router;
