@@ -1,24 +1,14 @@
 import WebSocket, { ServerOptions } from "ws";
 import { verifyToken } from "@/utils/jsonwebtoken";
-import { WS_SERVER_PORT } from "@/config/env";
-
-type MessageHandler = (message: string) => void;
-type CloseHandler = () => void;
-
+import { MessageHandler, CloseHandler } from "./types";
 class WebSocketServer {
-  private wss: WebSocket.Server;
+  private server: WebSocket.Server;
   private messageListeners: Set<MessageHandler> = new Set();
   private closeListeners: Set<CloseHandler> = new Set();
 
-  constructor(port = WS_SERVER_PORT, isAuth = false, options?: ServerOptions) {
-    // 端口号合法性检查
-    if (port < 0 || port > 65535) {
-      throw new Error("无效的端口号");
-    }
-
+  constructor(isAuth = false, options?: ServerOptions) {
     // 开启WebSocketServer
-    this.wss = new WebSocket.Server({
-      port,
+    this.server = new WebSocket.Server({
       verifyClient: async (info, callback) => {
         try {
           // 校验连接是否需要认证
@@ -38,7 +28,7 @@ class WebSocketServer {
       ...options
     });
     // 监听客户端连接
-    this.wss.on("connection", (ws: WebSocket) => {
+    this.server.on("connection", (ws: WebSocket) => {
       // 监听客户端发送过来的消息
       ws.on("message", (message: string) => {
         // 触发所有的messageListeners
@@ -53,6 +43,10 @@ class WebSocketServer {
         this.closeListeners.forEach(listener => listener());
       });
     });
+  }
+
+  getServer() {
+    return this.server;
   }
 
   // 添加消息监听器
@@ -79,7 +73,7 @@ class WebSocketServer {
   public broadcast(message: string | Object): Promise<void[]> {
     const result: Promise<void>[] = [];
 
-    for (const client of this.wss.clients) {
+    for (const client of this.server.clients) {
       if (client.readyState === WebSocket.OPEN) {
         result.push(
           new Promise<void>((resolve, reject) => {
@@ -102,7 +96,7 @@ class WebSocketServer {
   public close(): void {
     this.messageListeners.clear();
     this.closeListeners.clear();
-    this.wss.close();
+    this.server.close();
   }
 }
 
