@@ -1,7 +1,12 @@
 import WebSocket, { ServerOptions } from "ws";
 import { verifyToken } from "@/utils/jsonwebtoken";
-import { MessageHandler, CloseHandler } from "./types";
+import { MessageHandler, CloseHandler, WebSocketExpand } from "./types";
+import { generateId } from "@/utils/api";
+import { WSResponse } from "@/config/response";
+import Tags from "./tags";
+
 class WebSocketServer {
+  private clients = new Map<string, WebSocketExpand>();
   private server: WebSocket.Server;
   private messageListeners: Set<MessageHandler> = new Set();
   private closeListeners: Set<CloseHandler> = new Set();
@@ -28,7 +33,7 @@ class WebSocketServer {
       ...options
     });
     // 监听客户端连接
-    this.server.on("connection", (ws: WebSocket) => {
+    this.server.on("connection", (ws: WebSocketExpand) => {
       // 监听客户端发送过来的消息
       ws.on("message", (message: string) => {
         // 触发所有的messageListeners
@@ -41,12 +46,27 @@ class WebSocketServer {
       ws.on("close", () => {
         // 触发所有的closeListeners
         this.closeListeners.forEach(listener => listener());
+        // 从clients中删除该客户端
+        this.clients.delete(ws.identifier);
       });
+
+      // 为客户端设置唯一标识符
+      ws.identifier = generateId();
+      // 将客户端添加到clients中
+      this.clients.set(ws.identifier, ws);
+      // 向客户端发送唯一标识符
+      ws.send(WSResponse({ tag: Tags.IDENTIFIER, data: ws.identifier }));
     });
   }
 
-  getServer() {
-    return this.server;
+  // 获取指定 Client
+  public getClient(identifier: string) {
+    return this.clients.get(identifier);
+  }
+
+  // 获取所有 Client
+  public getClients() {
+    return Array.from(this.clients.values());
   }
 
   // 添加消息监听器
@@ -70,14 +90,14 @@ class WebSocketServer {
   }
 
   // 发送消息给所有客户端
-  public broadcast(message: string | Object): Promise<void[]> {
+  public broadcast(message: string): Promise<void[]> {
     const result: Promise<void>[] = [];
 
     for (const client of this.server.clients) {
       if (client.readyState === WebSocket.OPEN) {
         result.push(
           new Promise<void>((resolve, reject) => {
-            client.send(JSON.stringify(message), error => {
+            client.send(message, error => {
               if (error) {
                 reject(error);
               } else {
