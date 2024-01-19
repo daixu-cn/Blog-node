@@ -305,9 +305,9 @@ export default {
     }
   },
 
-  async checker(ctx: Context) {
+  checker(ctx: Context) {
     try {
-      await ws.broadcast(WSResponse({ tag: Tags.CHECKER }));
+      ws.emit(Tags.CHECKER, WSResponse({ tag: Tags.CHECKER }));
 
       ctx.body = response({ message: "推送成功" });
     } catch (error: any) {

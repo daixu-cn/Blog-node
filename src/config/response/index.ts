@@ -8,11 +8,11 @@ export default function response(params: Params): Response {
   };
 }
 
-export function WSResponse(params: WSParams): string {
-  return JSON.stringify({
+export function WSResponse(params: WSParams) {
+  return {
     code: params.code ?? 0,
     data: params.data ?? null,
     message: params.message ?? "操作成功",
     tag: params.tag ?? ""
-  });
+  };
 }

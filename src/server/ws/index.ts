@@ -1,22 +1,9 @@
-import WebSocketServer from "@/server/ws/WebSocketServer";
 import { server } from "@/server";
-import Tags from "@/server/ws/tags";
-import { WSResponse } from "@/config/response";
-import { errorLogger } from "@/utils/log4";
+import { Server } from "socket.io";
+import { createAdapter } from "@socket.io/redis-adapter";
+import { REDIS } from "@/utils/redis";
 
-const ws = new WebSocketServer(false, { server });
+const io = new Server(server);
+io.adapter(createAdapter(REDIS, REDIS.duplicate()));
 
-ws.addMessageListener(message => {
-  try {
-    const { tag, sn } = JSON.parse(message);
-    const client = ws.getClient(sn);
-
-    if (tag === Tags.PING && client) {
-      client.send(WSResponse({ tag: Tags.PONG, message: "PONG" }));
-    }
-  } catch (error: any) {
-    errorLogger(`WebSocket Error: ${error?.message ?? error}`);
-  }
-});
-
-export default ws;
+export default io;
