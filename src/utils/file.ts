@@ -33,7 +33,7 @@ export function saveFile(src: string): Promise<string> {
       await fs.writeFile(`${filePath}/${fileName}`, buffer);
 
       // 文件最终地址
-      const result = `${fileType}/${fileName}`;
+      const result = `/${fileType}/${fileName}`;
 
       // 返回文件地址
       resolve(result);
