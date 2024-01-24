@@ -166,12 +166,13 @@ export default {
         "unlockAt",
         "userId"
       ];
+      const { isSendEmail } = ctx.params;
 
       const { dataValues: article } = await Article.create(filteredParams(ctx.params, values));
 
       ctx.body = response({ data: article, message: "创建成功" });
 
-      if (!article.isPrivate && dayjs().isAfter(article.unlockAt)) {
+      if (isSendEmail === 1 && !article.isPrivate && dayjs().isAfter(article.unlockAt)) {
         const userList = await User.findAll({
           where: {
             emailService: true

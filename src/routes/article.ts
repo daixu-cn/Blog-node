@@ -52,6 +52,10 @@ router.prefix("/article");
  *                 type: integer
  *                 default: 0
  *                 description: 私有文章(0:公开、1:私有)
+ *               isSendEmail:
+ *                 type: integer
+ *                 default: 1
+ *                 description: 是否发送邮件通知(0:不发送、1:发送)，如果是私有文章或未到解锁时间则固定不发送
  *               unlockAt:
  *                 type: string
  *                 default: "1000-01-01 00:00:00"
