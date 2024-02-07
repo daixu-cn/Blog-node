@@ -76,6 +76,57 @@ router.put("/file", auth(0), koaBody(), params(), uploadController.upload);
 
 /**
  * @swagger
+ * /upload/image:
+ *   put:
+ *     tags:
+ *       - 文件服务
+ *     summary: 上传图片
+ *     description: 上传图片到服务器，可同时上传多个图片，单个图片最大为1M
+ *     requestBody:
+ *       description:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               file:
+ *                 type: array
+ *                 description: 二进制文件
+ *                 items:
+ *                   type: string
+ *                   format: binary
+ *             required:
+ *               - file
+ *     responses:
+ *       200:
+ *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 code:
+ *                   type: integer
+ *                   description: 状态码：0成功
+ *                 message:
+ *                   type: string
+ *                   description: 返回信息
+ *                 data:
+ *                   type: string
+ *                   description: 根据上传数量返回文件地址或者数组
+ *                   example: "https://daixu.cn/162757520497303552.png"
+ */
+router.put(
+  "/image",
+  auth(1),
+  koaBody(1024 * 1024, { allowTypes: ["image"] }),
+  params(),
+  uploadController.upload
+);
+
+/**
+ * @swagger
  * /upload/file:
  *   delete:
  *     tags:
