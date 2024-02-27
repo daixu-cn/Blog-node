@@ -13,6 +13,7 @@ import helmet from "@/middlewares/helmet";
 import ratelimit from "@/middlewares/ratelimit";
 import koaBody from "koa-body";
 import hls from "@/middlewares/hls";
+import authorizedFile from "@/middlewares/authorizedFile";
 import koaStatic from "@/middlewares/koaStatic";
 import auth from "@/middlewares/auth";
 import watermark from "@/middlewares/watermark";
@@ -28,6 +29,7 @@ export default compose([
   compress(),
   watermark(),
   hls(),
+  authorizedFile(),
   koaStatic(),
   auth(-1),
   // ratelimit(),
