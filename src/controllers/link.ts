@@ -72,7 +72,8 @@ export default {
   },
   async update(ctx: Context) {
     try {
-      const { linkId, check, ...values } = ctx.params;
+      const { linkId, ...values } = ctx.params;
+      const { check } = values;
 
       const [rows] = await Link.update(values, { where: { linkId } });
 
