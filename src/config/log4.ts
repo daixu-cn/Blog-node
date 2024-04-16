@@ -23,9 +23,7 @@ const GeneralConfiguration = {
 
 function createConfigure(): Configuration {
   // 日志文件路径
-  const filePath = `${dayjs().year()}/${dayjs().format("YYYY-MM")}/${dayjs().format(
-    "YYYY-MM-DD"
-  )}/${dayjs().format("YYYY-MM-DD")}.log`;
+  const filePath = `${dayjs().year()}/${dayjs().format("YYYY-MM")}/${dayjs().format("YYYY-MM-DD")}.log`;
 
   return {
     appenders: {
