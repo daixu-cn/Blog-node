@@ -6,9 +6,9 @@
 
 import { Context, Next } from "koa";
 
-export default function () {
+export default function (extra?: object) {
   return async function (ctx: Context, next: Next) {
-    ctx.params = { ...ctx.request.body, ...ctx.query, ...ctx.params };
+    ctx.params = { ...ctx.request.body, ...ctx.query, ...ctx.params, ...extra };
     await next();
   };
 }

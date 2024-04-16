@@ -16,19 +16,18 @@ interface Options extends ExtendedFormidableOptions {
 
 /**
  * @description 上传文件
- * @param {number} maxFileSize 默认单个文件最大为2M
+ * @param {number} maxFileSize 默认单个文件最大为100M
  * @param {Options} options 配置项
  */
-export default function (maxFileSize: number = 1024 * 1024 * 2, options?: Options) {
+export default function (maxFileSize: number = 1024 * 1024 * 100, options?: Options) {
   return koaBody({
     multipart: true,
     formidable: {
       maxFileSize,
       uploadDir: ASSET_DIR,
-      keepExtensions: true,
       // 重写文件名
-      filename(_, ext) {
-        return `${generateId()}${ext}`;
+      filename() {
+        return generateId();
       },
       onFileBegin(_, file) {
         // 判断一下上传的路径是否存在，避免报错
