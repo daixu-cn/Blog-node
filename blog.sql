@@ -68,27 +68,6 @@ BEGIN;
 COMMIT;
 
 -- ----------------------------
--- Table structure for lemon
--- ----------------------------
-DROP TABLE IF EXISTS `lemon`;
-CREATE TABLE `lemon` (
-  `lemon_id` bigint unsigned NOT NULL COMMENT 'ID',
-  `description` char(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '描述',
-  `path` char(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '文件地址',
-  `media_type` enum('IMAGE','VIDEO') COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '媒体类型："IMAGE":"图片","VIDEO":"视频"',
-  `created_at` datetime NOT NULL,
-  `updated_at` datetime NOT NULL,
-  PRIMARY KEY (`lemon_id`),
-  UNIQUE KEY `lemon_id` (`lemon_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='柠檬生活记录表';
-
--- ----------------------------
--- Records of lemon
--- ----------------------------
-BEGIN;
-COMMIT;
-
--- ----------------------------
 -- Table structure for link
 -- ----------------------------
 DROP TABLE IF EXISTS `link`;
@@ -163,7 +142,7 @@ CREATE TABLE `user` (
   `user_name` char(100) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '用户名',
   `password` char(100) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '1bc2a8b7478a135446ee4e98f924efbf' COMMENT '密码',
   `email` char(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '用户邮箱',
-  `avatar` char(50) COLLATE utf8mb4_unicode_ci DEFAULT '/image/avatar.png' COMMENT '用户头像',
+  `avatar` char(50) COLLATE utf8mb4_unicode_ci DEFAULT '/*/default-avatar.png' COMMENT '用户头像',
   `qq` char(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'qq',
   `github` char(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'github',
   `google` char(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'google',

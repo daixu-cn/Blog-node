@@ -21,9 +21,6 @@ const routers: Router[] = [
   },
   {
     url: "/creations/final-choice"
-  },
-  {
-    url: "/creations/lemon"
   }
 ];
 

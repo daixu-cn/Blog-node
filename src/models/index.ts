@@ -5,7 +5,6 @@ import Comment from "@/models/comment";
 import Reply from "@/models/reply";
 import Link from "@/models/link";
 import Update from "@/models/update";
-import Lemon from "@/models/lemon";
 
 // 模型同步
 // sequelize.sync({ force: true });
