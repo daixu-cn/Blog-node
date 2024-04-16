@@ -62,5 +62,4 @@ function uploadMarkdownAssets(oldPath: string, newPath: string) {
 
 // 传入旧的访问前缀和新的访问前缀，执行后会将 Markdown 内容中的旧的访问前缀替换为新的访问前缀
 // 可以一次性替换多个，但是不建议一次性替换过多，以免出现问题
-uploadMarkdownAssets("https://api.daixu.cn:443/upload", "https://api.daixu.cn");
-uploadMarkdownAssets("https://asset.daixu.cn/Blog", "https://api.daixu.cn");
+// uploadMarkdownAssets("https://api.daixu.cn", "https://oss.daixu.cn");
