@@ -51,7 +51,7 @@ const User = sequelize.define(
     avatar: {
       type: DataTypes.CHAR(50),
       comment: "用户头像",
-      defaultValue: "/image/avatar.png",
+      defaultValue: "/*/default-avatar.png",
       get() {
         return `${ASSET_PREFIX}${this.getDataValue("avatar")}`;
       },
@@ -109,7 +109,7 @@ const User = sequelize.define(
         if (changed) {
           if (changed.includes("avatar")) {
             const oldAvatar = instance.previous("avatar");
-            if (!oldAvatar.endsWith("/image/avatar.png")) {
+            if (!oldAvatar.endsWith("/*/default-avatar.png")) {
               validateAndRemoveOld(oldAvatar, instance.getDataValue("avatar"));
             }
           }
