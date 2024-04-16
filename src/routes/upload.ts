@@ -36,21 +36,14 @@ router.prefix("/upload");
  *                 items:
  *                   type: string
  *                   format: binary
- *               replaceFile:
+ *               path:
  *                 type: string
- *                 description: 替换文件：传入文件路径或者完整地址，传入该属性则只能传入一个文件（且文件后缀必须与替换前的文件保持一致）
- *               name:
+ *                 example: /image/user
+ *                 description: 需要存放的路径
+ *               replace:
  *                 type: string
- *                 description: 分片文件(必传)：文件标识（确保同一个文件的标识一致）
- *               chunk:
- *                 type: string
- *                 description: 分片文件(必传)：当前是第几个分片文件
- *               chunks:
- *                 type: string
- *                 description: 分片文件(必传)：该文件被分成了多少个分片
- *               hash:
- *                 type: string
- *                 description: 分片文件(必传)：分片文件的 md5 值
+ *                 example: /image/xxx.png
+ *                 description: 需要替换的文件路径 (replace传入时，path无效)
  *             required:
  *               - file
  *     responses:
@@ -76,11 +69,11 @@ router.put("/file", auth(0), koaBody(), params(), uploadController.upload);
 
 /**
  * @swagger
- * /upload/image:
+ * /upload/image/comment:
  *   put:
  *     tags:
  *       - 文件服务
- *     summary: 上传图片
+ *     summary: 评论/回复图片上传
  *     description: 上传图片到服务器，可同时上传多个图片，单个图片最大为1M
  *     requestBody:
  *       description:
@@ -118,10 +111,59 @@ router.put("/file", auth(0), koaBody(), params(), uploadController.upload);
  *                   example: "https://daixu.cn/162757520497303552.png"
  */
 router.put(
-  "/image",
+  "/image/comment",
   auth(1),
   koaBody(1024 * 1024, { allowTypes: ["image"] }),
-  params(),
+  params({ path: "/image/comment" }),
+  uploadController.upload
+);
+
+/**
+ * @swagger
+ * /upload/image/user:
+ *   put:
+ *     tags:
+ *       - 文件服务
+ *     summary: 用户头像上传
+ *     description: 上传图片到服务器，可同时上传多个图片，单个图片最大为1M
+ *     requestBody:
+ *       description:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               file:
+ *                 type: string
+ *                 format: binary
+ *                 description: 二进制文件
+ *             required:
+ *               - file
+ *     responses:
+ *       200:
+ *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 code:
+ *                   type: integer
+ *                   description: 状态码：0成功
+ *                 message:
+ *                   type: string
+ *                   description: 返回信息
+ *                 data:
+ *                   type: string
+ *                   description: 根据上传数量返回文件地址或者数组
+ *                   example: "https://daixu.cn/162757520497303552.png"
+ */
+router.put(
+  "/image/user",
+  auth(1),
+  koaBody(1024 * 1024, { allowTypes: ["image"] }),
+  params({ path: "/image/user" }),
   uploadController.upload
 );
 

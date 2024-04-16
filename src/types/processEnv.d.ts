@@ -6,7 +6,6 @@ declare namespace NodeJS {
     PORT: string;
     DOMAIN: string;
     ASSET_DIR: string;
-    WATERMARK: string;
     ASSET_PREFIX: string;
     SITE_URL: string;
 
@@ -32,5 +31,10 @@ declare namespace NodeJS {
     EMAIL_PORT: string;
     EMAIL_USER: string;
     EMAIL_PASSWORD: string;
+
+    ALI_ACCESS_KEY_ID: string;
+    ALI_ACCESS_KEY_SECRET: string;
+    ALI_OSS_REGION: string;
+    ALI_OSS_BUCKET: string;
   }
 }

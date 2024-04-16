@@ -1,12 +1,13 @@
-import fs from "fs-extra";
-
 export interface DirectoriesList {
   name: string;
   subDirectories: DirectoriesList[];
 }
-export interface Files extends fs.Stats {
-  directory: boolean;
+
+export interface FileResult {
+  directory?: boolean;
   name: string;
-  url: string;
-  path: string;
+  path?: string;
+  url?: string;
+  lastModified?: string;
+  size?: number;
 }

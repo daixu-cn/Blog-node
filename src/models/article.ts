@@ -8,10 +8,9 @@ import { DataTypes } from "sequelize";
 import sequelize from "@/config/sequelize";
 import { category } from "@/global/enum";
 import { generateId } from "@/utils/api";
-import { ASSET_DIR, ASSET_PREFIX, MIN_DATE } from "@/config/env";
-import fs from "fs-extra";
+import { ASSET_PREFIX, MIN_DATE } from "@/config/env";
 import { deleteLocalAsset, validateAndRemoveOld } from "@/utils/file";
-import { destroyVideoAssets } from "@/utils/video";
+import oss from "@/utils/oss";
 
 import Comment from "@/models/comment";
 import { recursiveDeletionComment } from "@/controllers/comment";
@@ -164,8 +163,8 @@ const Article = sequelize.define(
       },
       async afterDestroy({ dataValues: article }) {
         // 删除文章关联内容、封面、视频的本地文件
-        fs.remove(`${ASSET_DIR}${article.poster}`);
-        destroyVideoAssets(`${ASSET_DIR}${article.video}`);
+        oss.delete(article.poster);
+        oss.delete(article.video);
         deleteLocalAsset(article.content);
 
         // 删除文章关联的评论/回复

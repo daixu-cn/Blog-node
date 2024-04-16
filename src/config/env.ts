@@ -25,8 +25,6 @@ export const DOMAIN = process.env.DOMAIN;
 export const URL = `${SCHEME}://${DOMAIN}:${PORT}`;
 // 资源存放路径
 export const ASSET_DIR = process.env.ASSET_DIR;
-// 水印图片路径
-export const WATERMARK = process.env.WATERMARK;
 // 资源获取路径前缀
 export const ASSET_PREFIX = process.env.ASSET_PREFIX;
 // 网站服务地址（前端页面）
@@ -34,8 +32,6 @@ export const SITE_URL = process.env.SITE_URL;
 
 // 受信任的域名（用于跨域等版块使用）
 export const TRUSTED_DOMAINS = ["127.0.0.1", "localhost", "daixu.cn", "thund.com"];
-// 版权描述
-export const COPYRIGHT = `©️ ${new Date().getFullYear()} DAIXU.CN 版权所有。未经授权禁止复制或使用。`;
 // 数据库最小时间
 export const MIN_DATE = "1970-01-01 00:00:00";
 
@@ -43,7 +39,7 @@ export const MIN_DATE = "1970-01-01 00:00:00";
 export const _MYSQL = {
   host: process.env.MYSQL_HOST,
   database: process.env.MYSQL_DATABASE,
-  user: process.env.MYSQL_USER,
+  user: "root",
   password: process.env.MYSQL_PASSWORD,
   multipleStatements: false
 };
@@ -89,5 +85,15 @@ export const _EMAIL = {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASSWORD
     }
+  }
+};
+
+// 阿里云服务配置
+export const _ALI = {
+  ALI_ACCESS_KEY_ID: process.env.ALI_ACCESS_KEY_ID,
+  ALI_ACCESS_KEY_SECRET: process.env.ALI_ACCESS_KEY_SECRET,
+  OSS: {
+    ALI_OSS_REGION: process.env.ALI_OSS_REGION,
+    ALI_OSS_BUCKET: process.env.ALI_OSS_BUCKET
   }
 };

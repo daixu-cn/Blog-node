@@ -3,9 +3,9 @@ import FileType from "file-type";
 import got from "got";
 import { generateId } from "@/utils/api";
 import { ASSET_DIR } from "@/config/env";
-import { DirectoriesList, Files } from "./type";
+import { DirectoriesList } from "./type";
 import { ASSET_PREFIX } from "@/config/env";
-import { destroyVideoAssets } from "@/utils/video";
+import oss from "@/utils/oss";
 
 /**
  * @description 将网络文件保存到本地
@@ -45,57 +45,24 @@ export function saveFile(src: string): Promise<string> {
 
 /**
  * @description 递归获取指定文件夹下的所有文件夹(包含多级子文件夹)
- * @param {string} dirPath 文件夹路径
- * @return {DirectoriesList[]} 返回文件夹列表
+ * @param {string} prefix 文件夹路径
+ * @return {Promise<DirectoriesList[]>} 返回文件夹列表
  */
-export function getDirectories(dirPath: string): DirectoriesList[] {
-  // 初始化文件和文件夹列表
-  const result: DirectoriesList[] = [];
-  // 获取指定文件夹下的所有文件
-  const files = fs.readdirSync(dirPath);
+export function getDirectories(prefix: string = ""): Promise<DirectoriesList[]> {
+  return new Promise(async (resolve, reject) => {
+    const result: DirectoriesList[] = [];
+    const { prefixes } = await oss.list({ prefix, delimiter: "/" });
 
-  for (const name of files) {
-    // 判断是否是文件夹
-    if (fs.statSync(`${dirPath}/${name}`).isDirectory()) {
-      result.push({ name, subDirectories: getDirectories(`${dirPath}/${name}`) });
+    if (prefixes) {
+      for (const name of prefixes) {
+        result.push({ name, subDirectories: await getDirectories(name) });
+      }
     }
-  }
 
-  return result;
-}
-
-/**
- * @description 获取指令文件夹下的所有文件
- * @param {string} dirPath 文件夹路径
- * @return {Files[]} 返回文件/文件夹列表
- */
-export function getFiles(dirPath: string): Files[] {
-  const result: Files[] = [];
-  // 文件夹下的所有文件/文件夹
-  const files = fs.readdirSync(dirPath);
-
-  for (const name of files) {
-    const stat = fs.statSync(`${dirPath}/${name}`);
-    const path = `/${dirPath.split("/Blog")?.[1]}/${name}`.replace(/\/+/g, "/");
-
-    result.push({
-      ...stat,
-      name,
-      path: path.replace(/\\/g, "/"),
-      url: `${ASSET_PREFIX}${path}`,
-      directory: stat.isDirectory()
-    });
-  }
-
-  // 按照文件夹优先排序
-  return result.sort((a, b) => {
-    if (a.directory && !b.directory) {
-      return -1;
+    for (const item of result) {
+      item.name = item.name.split("/").slice(-2, -1)[0];
     }
-    if (!a.directory && b.directory) {
-      return 1;
-    }
-    return 0;
+    resolve(result);
   });
 }
 
@@ -110,11 +77,8 @@ export function deleteLocalAsset(content: string) {
       const links = content.match(reg) ?? [];
 
       for (const link of links) {
-        const path = `${ASSET_DIR}${link.replace(ASSET_PREFIX, "")}`;
-        if (fs.existsSync(path) && fs.statSync(path).isFile()) {
-          fs.remove(path);
-          resolve();
-        }
+        oss.delete(link.replace(ASSET_PREFIX, ""));
+        resolve();
       }
     } catch (err) {
       reject(err);
@@ -131,9 +95,8 @@ export function validateAndRemoveOld(oldPath: string, newPath: string) {
   return new Promise<void>((resolve, reject) => {
     try {
       if (oldPath && oldPath !== newPath) {
-        fs.remove(`${ASSET_DIR}${oldPath}`);
+        oss.delete(oldPath);
       }
-      destroyVideoAssets(oldPath, oldPath !== newPath);
     } catch (err) {
       reject(err);
     }
