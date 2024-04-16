@@ -161,4 +161,40 @@ router.post(
   fileController.xlsx_parse
 );
 
+/**
+ * @swagger
+ * /file/video/type:
+ *   get:
+ *     tags:
+ *       - 文件服务
+ *     summary: 获取视频文件类型
+ *     description: 获取视频文件类型
+ *     security: []
+ *     parameters:
+ *       - name: video
+ *         in: query
+ *         description: 视频地址
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 code:
+ *                   type: integer
+ *                   description: 状态码：0成功
+ *                 message:
+ *                   type: string
+ *                   description: 返回信息
+ *                 data:
+ *                   type: string
+ *                   description: 视频类型
+ */
+router.get("/video/type", fileController.videoType);
+
 export default router;

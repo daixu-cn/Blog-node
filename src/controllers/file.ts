@@ -7,10 +7,11 @@
 import { Context } from "koa";
 import response from "@/config/response";
 import responseError from "@/config/response/error";
-import { getDirectories, getFiles } from "@/utils/file";
 import xlsx from "node-xlsx";
 import fs from "fs-extra";
-import { ASSET_DIR } from "@/config/env";
+import { getDirectories } from "@/utils/file";
+import oss from "@/utils/oss";
+import { FileResult } from "@/utils/type";
 
 export default {
   /**
@@ -30,10 +31,10 @@ export default {
    *           items:
    *             $ref: '#/components/schemas/Directorys'
    */
-  getDirectorys(ctx: Context) {
+  async getDirectorys(ctx: Context) {
     try {
       ctx.body = response({
-        data: getDirectories(ASSET_DIR),
+        data: await getDirectories(),
         message: "查询成功"
       });
     } catch (error: any) {
@@ -50,89 +51,53 @@ export default {
    *       properties:
    *         name:
    *           type: string
-   *           description: 目录名称
-   *         path:
-   *           type: string
-   *           description: 文件访问地址
+   *           description: 目录/文件名称
+   *         directory:
+   *           type: boolean
+   *           description: 是否为目录
    *         url:
    *           type: string
-   *           description: 文件地址
-   *         directory:
-   *           type: string
-   *           description: 是否为文件夹
-   *         dev:
-   *           type: integer
-   *           description: 设备 ID
-   *         mode:
-   *           type: integer
-   *           description: 文件的权限和模式
-   *         nlink:
-   *           type: integer
-   *           description: 链接数
-   *         uid:
-   *           type: integer
-   *           description: 用户 ID
-   *         gid:
-   *           type: integer
-   *           description: 组 ID
-   *         rdev:
-   *           type: integer
-   *           description: 保留设备字段
-   *         blksize:
-   *           type: integer
-   *           description: 文件系统的块大小
-   *         ino:
-   *           type: integer
-   *           description: 文件的索引节点号
+   *           description: 文件的访问地址
    *         size:
-   *           type: integer
-   *           description: 文件的大小
-   *         blocks:
-   *           type: integer
-   *           description: 分配给文件的块数
-   *         atimeMs:
-   *           type: number
-   *           format: double
-   *           description: 文件的最后访问时间（毫秒）
-   *         mtimeMs:
-   *           type: number
-   *           format: double
-   *           description: 文件的最后修改时间（毫秒）
-   *         ctimeMs:
-   *           type: number
-   *           format: double
-   *           description: 文件的最后更改时间（毫秒）
-   *         birthtimeMs:
-   *           type: number
-   *           format: double
-   *           description: 文件的创建时间（毫秒）
-   *         atime:
-   *           type: string
-   *           description: 文件的最后访问时间（日期时间字符串）
-   *         mtime:
-   *           type: string
-   *           description: 文件的最后修改时间（日期时间字符串）
-   *         ctime:
+   *           type: parseInt
+   *           description: 文件的大小（字节）
+   *         lastModified:
    *           type: string
    *           description: 文件的最后更改时间（日期时间字符串）
-   *         birthtime:
-   *           type: string
-   *           description: 文件的创建时间（日期时间字符串）
    */
-  list(ctx: Context) {
+  async list(ctx: Context) {
     try {
-      const { directorie = "/", keyword = "", page = 1, pageSize = 10 } = ctx.params;
+      const { directorie = "", keyword = "", page = 1, pageSize = 10 } = ctx.params;
+      let result: FileResult[] = [];
 
-      const files = getFiles(`${ASSET_DIR}${directorie}`);
-      // 需要排除的文件
-      const excludeFiles = [".DS_Store"];
+      const { objects, prefixes } = await oss.list({
+        prefix: directorie,
+        delimiter: "/"
+      });
 
+      for (const path of prefixes ?? []) {
+        result.push({
+          directory: true,
+          name: path.split("/").slice(-2)[0]
+        });
+      }
+      for (const item of objects) {
+        if (item.name !== directorie) {
+          result.push({
+            path: item.name,
+            name: item.name.split("/").slice(-1)[0],
+            url: item.url,
+            lastModified: item.lastModified,
+            size: item.size
+          });
+        }
+      }
+
+      result = result.filter(file => file.name.includes(keyword));
       ctx.body = response({
         data: {
-          total: files.length,
-          list: files
-            .filter(file => file.name.includes(keyword) && !excludeFiles.includes(file.name))
-            .slice((page - 1) * pageSize, page * pageSize)
+          total: result.length,
+          list: result.slice((page - 1) * pageSize, page * pageSize)
         },
         message: "查询成功"
       });
@@ -159,6 +124,28 @@ export default {
           fs.remove(file?.filepath);
         }
       }
+    }
+  },
+  async videoType(ctx: Context) {
+    try {
+      const { video } = ctx.params;
+
+      const res = await fetch(video, { method: "HEAD" });
+      if (res.ok) {
+        const type = res.headers.get("Content-Type");
+        if (type) {
+          ctx.body = response({
+            data: type,
+            message: "获取成功"
+          });
+        } else {
+          throw responseError({ code: 18004 });
+        }
+      } else {
+        throw responseError({ code: 18004 });
+      }
+    } catch (error: any) {
+      throw responseError({ code: 18004, message: error?.message });
     }
   }
 };
