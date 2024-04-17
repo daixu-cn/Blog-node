@@ -72,7 +72,8 @@ export default {
 
       const { objects, prefixes } = await oss.list({
         prefix: directorie,
-        delimiter: "/"
+        delimiter: "/",
+        "max-keys": "1000"
       });
 
       for (const path of prefixes ?? []) {

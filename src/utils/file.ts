@@ -51,17 +51,16 @@ export function saveFile(src: string): Promise<string> {
 export function getDirectories(prefix: string = ""): Promise<DirectoriesList[]> {
   return new Promise(async (resolve, reject) => {
     const result: DirectoriesList[] = [];
-    const { prefixes } = await oss.list({ prefix, delimiter: "/" });
+    const { prefixes } = await oss.list({ prefix, delimiter: "/", "max-keys": "1000" });
 
-    if (prefixes) {
-      for (const name of prefixes) {
-        result.push({ name, subDirectories: await getDirectories(name) });
-      }
+    for (const name of prefixes ?? []) {
+      result.push({ name, subDirectories: await getDirectories(name) });
     }
 
     for (const item of result) {
       item.name = item.name.split("/").slice(-2, -1)[0];
     }
+
     resolve(result);
   });
 }
