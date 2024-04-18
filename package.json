@@ -69,6 +69,7 @@
     "md5": "^2.3.0",
     "module-alias": "^2.2.3",
     "mysql2": "^2.3.3",
+    "mysqldump": "^3.2.0",
     "node-schedule": "^2.1.1",
     "node-xlsx": "^0.23.0",
     "nodemailer": "^6.9.8",
