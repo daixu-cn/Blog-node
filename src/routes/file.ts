@@ -163,17 +163,17 @@ router.post(
 
 /**
  * @swagger
- * /file/video/type:
+ * /file/type:
  *   get:
  *     tags:
  *       - 文件服务
- *     summary: 获取视频文件类型
- *     description: 获取视频文件类型
+ *     summary: 获取OSS文件类型
+ *     description: 获取OSS文件类型
  *     security: []
  *     parameters:
- *       - name: video
+ *       - name: path
  *         in: query
- *         description: 视频地址
+ *         description: 文件地址，例：http://localhost:3000/video/xxx.mp4、video/xxx.mp4
  *         required: true
  *         schema:
  *           type: string
@@ -193,8 +193,8 @@ router.post(
  *                   description: 返回信息
  *                 data:
  *                   type: string
- *                   description: 视频类型
+ *                   description: 文件类型
  */
-router.get("/video/type", fileController.videoType);
+router.get("/type", fileController.fileType);
 
 export default router;

@@ -12,6 +12,7 @@ import fs from "fs-extra";
 import { getDirectories } from "@/utils/file";
 import oss from "@/utils/oss";
 import { FileResult } from "@/utils/type";
+import { ASSET_PREFIX } from "@/config/env";
 
 export default {
   /**
@@ -127,24 +128,16 @@ export default {
       }
     }
   },
-  async videoType(ctx: Context) {
+  async fileType(ctx: Context) {
     try {
-      const { video } = ctx.params;
+      const { path } = ctx.params;
 
-      const res = await fetch(video, { method: "HEAD" });
-      if (res.ok) {
-        const type = res.headers.get("Content-Type");
-        if (type) {
-          ctx.body = response({
-            data: type,
-            message: "获取成功"
-          });
-        } else {
-          throw responseError({ code: 18004 });
-        }
-      } else {
-        throw responseError({ code: 18004 });
-      }
+      const { res } = await oss.head(path.replace(`${ASSET_PREFIX}/`, ""));
+
+      ctx.body = response({
+        data: res.headers["content-type"],
+        message: "获取成功"
+      });
     } catch (error: any) {
       throw responseError({ code: 18004, message: error?.message });
     }
