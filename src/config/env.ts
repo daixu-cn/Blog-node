@@ -94,6 +94,8 @@ export const _ALI = {
   ALI_ACCESS_KEY_SECRET: process.env.ALI_ACCESS_KEY_SECRET,
   OSS: {
     ALI_OSS_REGION: process.env.ALI_OSS_REGION,
-    ALI_OSS_BUCKET: process.env.ALI_OSS_BUCKET
+    ALI_OSS_BUCKET: process.env.ALI_OSS_BUCKET,
+    ALI_OSS_IMAGE_WATERMARK: process.env.ALI_OSS_IMAGE_WATERMARK,
+    ALI_OSS_ASSET_PREFIX: process.env.ALI_OSS_ASSET_PREFIX
   }
 };

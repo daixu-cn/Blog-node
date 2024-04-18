@@ -36,5 +36,7 @@ declare namespace NodeJS {
     ALI_ACCESS_KEY_SECRET: string;
     ALI_OSS_REGION: string;
     ALI_OSS_BUCKET: string;
+    ALI_OSS_IMAGE_WATERMARK: string;
+    ALI_OSS_ASSET_PREFIX: string;
   }
 }
