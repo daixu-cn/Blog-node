@@ -64,11 +64,15 @@ export default {
   /**
    * @description 上传文件至阿里云OSS
    * @param {string} path 文件在OSS中的路径
-   * @param {string} localFile 本地文件路径
+   * @param {string|Buffer} localFile 本地文件路径或者Buffer
    * @param {OSS.PutObjectOptions} options OSS配置项
    * @return {Promise<string>} 文件在OSS中的路径
    */
-  upload(path: string, localFile: string, options?: OSS.PutObjectOptions): Promise<string> {
+  upload(
+    path: string,
+    localFile: string | Buffer,
+    options?: OSS.PutObjectOptions
+  ): Promise<string> {
     return new Promise(async (resolve, reject) => {
       try {
         const result = await client.put(path, localFile, options);

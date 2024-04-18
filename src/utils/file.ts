@@ -1,42 +1,25 @@
-import fs from "fs-extra";
-import FileType from "file-type";
 import got from "got";
 import { generateId } from "@/utils/api";
-import { ASSET_DIR } from "@/config/env";
 import { DirectoriesList } from "./type";
 import { ASSET_PREFIX } from "@/config/env";
 import oss from "@/utils/oss";
 
 /**
- * @description 将网络文件保存到本地
+ * @description 将网络文件保存到OSS
  * @param {string} src 文件地址
- * @return {Promise<string>} 返回文件名
+ * @return {Promise<string>} 返回文件名路径
  */
 export function saveFile(src: string): Promise<string> {
   return new Promise<string>(async (resolve, reject) => {
     try {
       // 读取文件
       const buffer = await got(src, { responseType: "buffer" }).buffer();
-      // 解析文件类型
-      const fileTypeResult = await FileType.fromBuffer(buffer);
+      const ext = src.split(".").pop();
+      const filePath = `image/user/${generateId()}.${ext}`;
 
-      // 文件名
-      const fileName = `${generateId()}.${fileTypeResult?.ext}`;
-      // 文件类型
-      const fileType = fileTypeResult?.mime.split("/")[0];
-      // 将文件移入该目录
-      const filePath = `${ASSET_DIR}/${fileType}`;
-
-      // 校验文件目录是否存在
-      fs.ensureDirSync(filePath);
-      // 写入文件
-      await fs.writeFile(`${filePath}/${fileName}`, buffer);
-
-      // 文件最终地址
-      const result = `/${fileType}/${fileName}`;
-
+      const name = await oss.upload(filePath, buffer);
       // 返回文件地址
-      resolve(result);
+      resolve(`/${name}`);
     } catch (err) {
       reject(err);
     }
