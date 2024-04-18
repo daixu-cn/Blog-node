@@ -9,8 +9,10 @@ import stream from "stream";
 import oss from "@/utils/oss";
 import { _ALI } from "@/config/env";
 
+// 不需要代理的文件路径
+const NO_PROXY_PATH = ["/*", "/video"];
 // 不需要加水印的图片路径
-const NO_WATERMARK_PATH = ["/*", "/image/user", "/image/comment"];
+const NO_WATERMARK_PATH = ["/image/user", "/image/comment"];
 
 export default function () {
   return async function (ctx: Context, next: Next) {
@@ -25,7 +27,10 @@ export default function () {
         const contentType = headers["content-type"];
         ctx.set("Content-Type", contentType);
 
-        if (
+        if (NO_PROXY_PATH.some(path => ctx.path.startsWith(path))) {
+          ctx.status = 301;
+          ctx.set("Location", `${_ALI.OSS.ALI_OSS_ASSET_PREFIX}${ctx.path}`);
+        } else if (
           contentType.startsWith("image/") &&
           !NO_WATERMARK_PATH.some(path => ctx.path.startsWith(path))
         ) {
