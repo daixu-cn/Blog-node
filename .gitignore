@@ -25,6 +25,7 @@
 .env
 .env.development
 .env.production
+public/sitemap.xml
 pm2.config.js
 
 npm-debug.log*

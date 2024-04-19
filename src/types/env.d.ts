@@ -8,6 +8,7 @@ declare namespace NodeJS {
     ASSET_DIR: string;
     ASSET_PREFIX: string;
     SITE_URL: string;
+    SITE_MAP_PATH: string;
 
     MYSQL_HOST: string;
     MYSQL_DATABASE: string;

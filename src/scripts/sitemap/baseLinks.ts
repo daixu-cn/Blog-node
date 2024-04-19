@@ -18,9 +18,6 @@ const routers: Router[] = [
   },
   {
     url: "/updates"
-  },
-  {
-    url: "/creations/final-choice"
   }
 ];
 

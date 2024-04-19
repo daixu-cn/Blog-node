@@ -9,10 +9,11 @@ import { SitemapStream, streamToPromise, SitemapItemLoose, EnumChangefreq } from
 import { Readable } from "stream";
 import { errorLogger } from "@/utils/log4";
 import schedule from "node-schedule";
-import { SITE_URL, ASSET_DIR, PM2_INSTANCE } from "@/config/env";
+import { SITE_URL, SITE_MAP_PATH, PM2_INSTANCE } from "@/config/env";
 import Article from "@/models/article";
 import dayjs from "dayjs";
 import baseLinks from "@/scripts/sitemap/baseLinks";
+import { Op } from "sequelize";
 
 // 只在PM2第一个进程运行该脚本
 if (PM2_INSTANCE === "0") {
@@ -32,7 +33,15 @@ function getArticles() {
     try {
       const links: SitemapItemLoose[] = [];
 
-      const articleList = await Article.findAll();
+      const articleList = await Article.findAll({
+        where: {
+          isPrivate: false,
+          unlockAt: {
+            [Op.lte]: dayjs().format("YYYY-MM-DDTHH:mm:ss.sssZZ")
+          }
+        }
+      });
+
       for (const item of articleList) {
         const article = item.dataValues;
 
@@ -62,7 +71,7 @@ async function updateSiteMap() {
 
   streamToPromise(Readable.from([...baseLinks, ...articles]).pipe(smStream))
     .then(data => {
-      fs.outputFile(`${ASSET_DIR}/site/sitemap.xml`, data.toString());
+      fs.outputFile(SITE_MAP_PATH, data.toString());
     })
     .catch(err => {
       errorLogger(err);
