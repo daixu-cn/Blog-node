@@ -10,7 +10,7 @@ import oss from "@/utils/oss";
 import { _ALI } from "@/config/env";
 
 // 不需要代理的文件路径
-const NO_PROXY_PATH = ["/*", "/video"];
+const NO_PROXY_PATH = ["/*", "/HLS"];
 // 不需要加水印的图片路径
 const NO_WATERMARK_PATH = ["/image/user", "/image/comment"];
 
@@ -20,6 +20,8 @@ export default function () {
 
     if (/\.\w+$/.test(ctx.path)) {
       try {
+        const barename = ctx.path.split("/").pop()?.split(".")[0];
+
         const {
           res: { headers }
         } = await oss.head(ctx.path.slice(1));
@@ -28,12 +30,16 @@ export default function () {
         ctx.set("Content-Type", contentType);
 
         if (NO_PROXY_PATH.some(path => ctx.path.startsWith(path))) {
-          ctx.status = 301;
-          ctx.set("Location", `${_ALI.OSS.ALI_OSS_ASSET_PREFIX}${ctx.path}`);
+          // 不需要代理
+          ctx.redirect(`${_ALI.OSS.ALI_OSS_ASSET_PREFIX}${ctx.path}`);
+        } else if (ctx.path.startsWith("/video")) {
+          // 视频重定向
+          ctx.redirect(`${_ALI.OSS.ALI_OSS_ASSET_PREFIX}/HLS/${barename}/${barename}.m3u8`);
         } else if (
           contentType.startsWith("image/") &&
           !NO_WATERMARK_PATH.some(path => ctx.path.startsWith(path))
         ) {
+          // 图片转发
           const process = _ALI.OSS.ALI_OSS_IMAGE_WATERMARK
             ? `style/${_ALI.OSS.ALI_OSS_IMAGE_WATERMARK}`
             : undefined;
