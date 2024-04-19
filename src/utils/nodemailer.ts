@@ -47,6 +47,7 @@ export function sendMail(
       (error, info) => {
         if (error) {
           errorLogger(error);
+          errorLogger(`src/utils/nodemailer.ts\n${JSON.stringify(error)}`);
           reject(error);
         } else {
           resolve(info);

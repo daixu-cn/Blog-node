@@ -8,9 +8,10 @@ import { Context, Next } from "koa";
 import stream from "stream";
 import oss from "@/utils/oss";
 import { _ALI } from "@/config/env";
+import { errorLogger } from "@/utils/log4";
 
 // 不需要代理的文件路径
-const NO_PROXY_PATH = ["/*", "/HLS"];
+const NO_PROXY_PATH = ["/*", "/backups", "/HLS"];
 // 不需要加水印的图片路径
 const NO_WATERMARK_PATH = ["/image/user", "/image/comment"];
 
@@ -21,11 +22,9 @@ export default function () {
     if (/\.\w+$/.test(ctx.path)) {
       try {
         const barename = ctx.path.split("/").pop()?.split(".")[0];
-
         const {
           res: { headers }
         } = await oss.head(ctx.path.slice(1));
-
         const contentType = headers["content-type"];
         ctx.set("Content-Type", contentType);
 
@@ -52,6 +51,7 @@ export default function () {
         }
       } catch (error) {
         ctx.status = 404;
+        errorLogger(`oss-proxy.ts\n${JSON.stringify(error)}`);
       }
     }
   };

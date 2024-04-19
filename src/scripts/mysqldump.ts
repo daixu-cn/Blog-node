@@ -19,7 +19,7 @@ import mysqldump from "mysqldump";
 if (PM2_INSTANCE === "0") {
   // 每天00:00执行一次
   schedule.scheduleJob("0 0 0 * * *", async () => {
-    const filename = `${dayjs().format("YYYY-MM-DD HH:mm:ss")}.dump.sql`;
+    const filename = `${dayjs().format("YYYY-MM-DD")}.dump.sql`;
 
     try {
       await mysqldump({
@@ -38,7 +38,7 @@ if (PM2_INSTANCE === "0") {
       });
     } catch (err) {
       sendMail("daixu.cn@outlook.com", "数据库备份失败", JSON.stringify(err));
-      errorLogger(err);
+      errorLogger(`mysqldump.ts\n${JSON.stringify(err)}`);
     } finally {
       fs.remove(`${ASSET_DIR}/${filename}`);
     }

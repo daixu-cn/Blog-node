@@ -15,7 +15,7 @@ server.listen(APP_PORT, () => {
   }
 });
 server.on("error", error => {
-  errorLogger(`server error: ${error}\n`);
+  errorLogger(`src/server/index.ts\nserver error: ${error}\n`);
 });
 
 export default app;

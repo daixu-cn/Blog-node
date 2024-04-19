@@ -14,7 +14,6 @@ import ratelimit from "@/middlewares/ratelimit";
 import koaBody from "koa-body";
 import ossProxy from "@/middlewares/oss-proxy";
 import authorizedFile from "@/middlewares/authorizedFile";
-import koaStatic from "@/middlewares/koaStatic";
 import auth from "@/middlewares/auth";
 import routes from "@/routes";
 
@@ -28,7 +27,6 @@ export default compose([
   compress(),
   ossProxy(),
   authorizedFile(),
-  koaStatic(),
   auth(-1),
   ratelimit(),
   routes()
