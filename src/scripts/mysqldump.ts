@@ -31,7 +31,11 @@ if (PM2_INSTANCE === "0") {
         },
         dumpToFile: `${ASSET_DIR}/${filename}`
       });
-      await oss.upload(`backups/mysql/${filename}`, `${ASSET_DIR}/${filename}`);
+      await oss.upload(`backups/mysql/${filename}`, `${ASSET_DIR}/${filename}`, {
+        headers: {
+          "x-oss-object-acl": "private"
+        }
+      });
     } catch (err) {
       sendMail("daixu.cn@outlook.com", "数据库备份失败", JSON.stringify(err));
       errorLogger(err);
