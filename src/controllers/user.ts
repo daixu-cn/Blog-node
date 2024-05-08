@@ -75,7 +75,7 @@ export default {
         "验证您的电子邮件地址",
         `安全验证码：${verifyCode}，该验证码5分钟内有效。为了保障您的账户安全,请勿向他人泄漏验证码信息。`
       );
-      redis.set(email, verifyCode, 60 * 5);
+      redis.set(email, verifyCode, "EX", 60 * 5);
 
       ctx.body = response({ message: "验证码发送成功" });
     } catch (error: any) {

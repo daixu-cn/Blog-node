@@ -21,7 +21,7 @@ export const sign = function (
   signOptions: SignOptions = _JWT.options
 ) {
   const token = jwt.sign(payload, secretOrPrivateKey, signOptions);
-  redis.set(token, payload, 60 * 60 * 24 * 7);
+  redis.set(token, JSON.stringify(payload), "EX", 60 * 60 * 24 * 7);
 
   return token;
 };

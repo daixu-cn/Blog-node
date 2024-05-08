@@ -282,13 +282,14 @@ export default {
       )?.toJSON();
 
       // 如果不是文章作者并且同一天没有访问过该文章则增加阅读量
+      const lastVisitTime = await redis.hget(articleId, ctx.clientIp);
       if (
         userId !== article.user.userId &&
         disableViewsIncrement !== "true" &&
-        (await redis.get(`${ctx.clientIp}-${articleId}`)) !== dayjs().format("YYYY-MM-DD")
+        (!lastVisitTime || dayjs().diff(dayjs(lastVisitTime), "hour") > 24)
       ) {
         Article.increment({ views: 1 }, { where: { articleId } });
-        redis.set(`${ctx.clientIp}-${articleId}`, dayjs().format("YYYY-MM-DD"), 60 * 60 * 24);
+        redis.hset(articleId, ctx.clientIp, new Date().toString());
       }
 
       if (article) {
