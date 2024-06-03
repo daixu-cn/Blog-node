@@ -377,7 +377,7 @@ export default {
   },
   async update(ctx: Context) {
     try {
-      const { userId, sms, email, role, ...values } = ctx.params;
+      const { userId, userName, sms, email, role, ...values } = ctx.params;
 
       if (email) {
         if ((await redis.get(email)) !== sms) {
@@ -394,6 +394,7 @@ export default {
       const [rows] = await User.update(
         {
           email,
+          userName: userName.trim(),
           ...values
         },
         { where: { userId }, individualHooks: true }
