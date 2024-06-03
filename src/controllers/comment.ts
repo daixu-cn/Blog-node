@@ -195,13 +195,15 @@ export default {
       });
       ctx.body = response({ data: comment, message: "创建成功" });
 
-      sendMail(
-        "daixu.cn@outlook.com",
-        "DAIXU BLOG",
-        `<div>您有一条新的回复，<a href="https://daixu.cn/${
-          articleId === "-1" ? "community" : "article/" + articleId
-        }" target="_blank" style="color:#9fa3f1;font-weight:initial;cursor:pointer;text-decoration:none">点击查看 </a>。</div><div style="background-color:#f7f8fa;padding:5px 15px;margin-top:20px">${html}</div>`
-      );
+      if (role !== 0) {
+        sendMail(
+          "daixu.cn@outlook.com",
+          "DAIXU BLOG",
+          `<div>您有一条新的回复，<a href="https://daixu.cn/${
+            articleId === "-1" ? "community" : "article/" + articleId
+          }" target="_blank" style="color:#9fa3f1;font-weight:initial;cursor:pointer;text-decoration:none">点击查看 </a>。</div><div style="background-color:#f7f8fa;padding:5px 15px;margin-top:20px">${html}</div>`
+        );
+      }
     } catch (error: any) {
       throw responseError({ code: 14001, message: error.errors?.[0]?.message ?? error?.message });
     }
