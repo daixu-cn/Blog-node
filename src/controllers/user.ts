@@ -390,11 +390,14 @@ export default {
           throw responseError({ code: 11008 });
         }
       }
+      if (userName !== undefined && userName.trim() === "") {
+        throw responseError({ code: 11015 });
+      }
 
       const [rows] = await User.update(
         {
           email,
-          userName: userName.trim(),
+          userName,
           ...values
         },
         { where: { userId }, individualHooks: true }

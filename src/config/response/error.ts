@@ -36,6 +36,8 @@ export function UserError(code: number): string {
       return "GitHub授权失败";
     case 11014:
       return "Google授权失败";
+    case 11015:
+      return "用户名不能为空";
     default:
       return "用户模块异常";
   }
