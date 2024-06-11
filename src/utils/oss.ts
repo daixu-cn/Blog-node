@@ -88,11 +88,15 @@ export default {
    * @param {OSS.RequestOptions} options OSS配置项
    * @return {Promise<OSS.DeleteResult>} 删除结果
    */
-  delete(path: string, options?: OSS.RequestOptions): Promise<OSS.DeleteResult> {
+  delete(path: string, options?: OSS.RequestOptions): Promise<OSS.DeleteResult | void> {
     return new Promise(async (resolve, reject) => {
       try {
-        const result = await client.delete(path, options);
-        resolve(result);
+        if (path) {
+          const result = await client.delete(path, options);
+          resolve(result);
+        }
+
+        resolve();
       } catch (error) {
         reject(error);
       }
