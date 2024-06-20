@@ -30,6 +30,18 @@ const User = sequelize.define(
       validate: {
         notNull: {
           msg: "用户名不能为空"
+        },
+        notEmpty: {
+          msg: "用户名不能为空"
+        },
+        customValidator(value) {
+          const forbidden = [/daixu/i, /dai\S*xu/i, /\s/];
+
+          for (const reg of forbidden) {
+            if (reg.test(value)) {
+              throw new Error("用户名包含禁用词语/格式异常");
+            }
+          }
         }
       }
     },
