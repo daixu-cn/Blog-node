@@ -394,7 +394,7 @@ export default {
       const [rows] = await User.update(
         {
           email,
-          userName: userName.trim(),
+          userName: userName?.trim(),
           ...values
         },
         { where: { userId }, individualHooks: true }
