@@ -27,6 +27,7 @@ jobs:
             [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
             cd ${{ secrets.REMOTE_PATH }}
             nvm use
-            git pull origin main
+            git fetch --all
+            git reset --hard origin/main
             npm install
             npm run pm2
