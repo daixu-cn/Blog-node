@@ -9,6 +9,7 @@ import sequelize from "@/config/sequelize";
 import { generateId } from "@/utils/api";
 import { ASSET_PREFIX } from "@/config/env";
 import { validateAndRemoveOld } from "@/utils/file";
+import keywords from "@/utils/keywords";
 
 const User = sequelize.define(
   "user",
@@ -33,15 +34,6 @@ const User = sequelize.define(
         },
         notEmpty: {
           msg: "用户名不能为空"
-        },
-        customValidator(value) {
-          const forbidden = [/daixu/i, /dai\S*xu/i, /\s/];
-
-          for (const reg of forbidden) {
-            if (reg.test(value)) {
-              throw new Error("用户名包含禁用词语/格式异常");
-            }
-          }
         }
       }
     },
@@ -116,6 +108,16 @@ const User = sequelize.define(
     createdAt: "createdAt",
     updatedAt: "updatedAt",
     hooks: {
+      beforeUpdate(instance) {
+        const changed = instance.changed();
+        if (changed) {
+          if (changed.includes("userName")) {
+            if (!keywords(instance.getDataValue("userName"))) {
+              instance.setDataValue("userName", "--");
+            }
+          }
+        }
+      },
       afterUpdate(instance) {
         const changed = instance.changed();
         if (changed) {
