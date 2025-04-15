@@ -6,16 +6,16 @@
 
 import { _MYSQL } from "@/config/env";
 import { Sequelize } from "sequelize";
+import fs from "fs";
 
 const sequelize = new Sequelize(_MYSQL.database, _MYSQL.user, _MYSQL.password, {
   host: _MYSQL.host,
   dialect: "mysql",
   timezone: "+08:00",
   logging: false,
-  define: {
-    underscored: true,
-    timestamps: true
-  }
+  port: _MYSQL.port,
+  dialectOptions: _MYSQL.ca ? { ssl: { ca: fs.readFileSync(_MYSQL.ca) } } : undefined,
+  define: { underscored: true, timestamps: true }
 });
 
 export default sequelize;

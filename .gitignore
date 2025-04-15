@@ -10,6 +10,7 @@
 
 # production
 /dist
+/keys
 
 # Editor directories and files
 .vscode/*

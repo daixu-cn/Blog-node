@@ -2,7 +2,7 @@ import { Context } from "koa";
 import responseError from "@/config/response/error";
 import fs from "fs-extra";
 import { File } from "formidable";
-import FileType from "file-type";
+import { fileTypeFromFile } from "file-type";
 import oss from "@/utils/oss";
 
 /**
@@ -16,7 +16,7 @@ export async function handleUploadFile(ctx: Context, file: File): Promise<string
     const { path, replace } = ctx.params;
 
     // 文件类型
-    const result = await FileType.fromFile(file.filepath);
+    const result = await fileTypeFromFile(file.filepath);
     if (!result) {
       throw responseError({ code: 12003 });
     }

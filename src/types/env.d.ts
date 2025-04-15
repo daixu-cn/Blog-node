@@ -12,8 +12,10 @@ declare namespace NodeJS {
 
     MYSQL_HOST: string;
     MYSQL_DATABASE: string;
+    MYSQL_PORT: string;
     MYSQL_USER: string;
     MYSQL_PASSWORD: string;
+    MYSQL_CA: string;
 
     REDIS_PORT: string;
     REDIS_HOST: string;

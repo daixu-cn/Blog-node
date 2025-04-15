@@ -41,8 +41,10 @@ export const MIN_DATE = "1970-01-01 00:00:00";
 export const _MYSQL = {
   host: process.env.MYSQL_HOST,
   database: process.env.MYSQL_DATABASE,
+  port: Number(process.env.MYSQL_PORT),
   user: process.env.MYSQL_USER,
   password: process.env.MYSQL_PASSWORD,
+  ca: process.env.MYSQL_CA,
   multipleStatements: false
 };
 
